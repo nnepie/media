@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📸 图片 & 视频共享库</title>
+  <style>
+    /* ===== 样式 ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui; background: #f5f7fb; padding: 24px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { font-size: 28px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+    h1 small { font-size: 16px; font-weight: 400; color: #64748b; }
+
+    .upload-area {
+      background: #fff; border: 2px dashed #cbd5e1; border-radius: 16px;
+      padding: 40px 20px; text-align: center; cursor: pointer; transition: 0.3s; margin-bottom: 30px;
+    }
+    .upload-area:hover { border-color: #3b82f6; background: #f8fafc; }
+    .upload-area.dragover { border-color: #3b82f6; background: #eff6ff; }
+    .upload-area .icon { font-size: 48px; display: block; }
+    .upload-area input[type="file"] { display: none; }
+
+    .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .btn { padding: 8px 18px; border: none; border-radius: 30px; font-size: 14px; font-weight: 500; cursor: pointer; background: #e2e8f0; transition: 0.2s; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .btn-danger { background: #fee2e2; color: #b91c1c; }
+
+    .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+    .card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: 0.3s; cursor: pointer; }
+    .card:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(0,0,0,0.1); }
+    .card .media-wrapper {
+      width: 100%;
+      padding-top: 100%;
+      position: relative;
+      background: #f1f5f9;
+      overflow: hidden;
+    }
+    .card .media-wrapper img,
+    .card .media-wrapper video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .card .info { padding: 12px 14px; font-size: 13px; }
+    .card .info .name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card .info .meta { color: #64748b; font-size: 12px; margin-top: 4px; display: flex; justify-content: space-between; }
+    .card .actions { display: flex; justify-content: flex-end; padding: 4px 14px 12px; gap: 6px; }
+    .card .actions .btn-sm { padding: 4px 12px; font-size: 12px; }
+
+    .empty { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #94a3b8; }
+    .empty .big { font-size: 64px; display: block; margin-bottom: 12px; }
+
+    /* Modal */
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 999; padding: 30px; }
+    .modal.active { display: flex; }
+    .modal-content {
+      max-width: 90vw;
+      max-height: 90vh;
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-content img,
+    .modal-content video {
+      display: block;
+      max-width: 100%;
+      max-height: 85vh;
+      margin: 0 auto;
+    }
+    .modal-content video {
+      width: 100%;
+      height: auto;
+    }
+    .modal-close {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 24px;
+      cursor: pointer;
+      transition: 0.2s;
+      z-index: 10;
+    }
+    .modal-close:hover { background: rgba(0,0,0,0.8); transform: rotate(90deg); }
+    .modal-info {
+      padding: 14px 20px;
+      background: #f8fafc;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { padding: 12px 20px; border-radius: 10px; background: #0f172a; color: #fff; font-size: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); animation: slideIn 0.3s ease; }
+    .toast.success { background: #166534; }
+    .toast.error { background: #991b1b; }
+    @keyframes slideIn { from { transform: translateX(60px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    @media (max-width: 640px) {
+      .gallery { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>📸 图片 & 视频共享库 <small>· Cloudinary</small></h1>
+
+  <!-- 上传区域 -->
+  <div class="upload-area" id="uploadZone">
+    <span class="icon">🖼️</span>
+    <h3>点击或拖拽上传图片 / MP4 视频</h3>
+    <p>支持 JPG / PNG / GIF / WebP / MP4，单文件 ≤ 100MB</p>
+    <input type="file" id="fileInput" accept="image/*,video/mp4" multiple />
+  </div>
+
+  <!-- 工具栏 -->
+  <div class="toolbar">
+    <div class="info">📂 共 <strong id="countLabel">0</strong> 个文件</div>
+    <button class="btn btn-danger" id="clearAllBtn">🗑️ 清空全部</button>
+  </div>
+
+  <!-- 列表 -->
+  <div class="gallery" id="gallery"></div>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div id="modalMediaContainer" style="display:flex;justify-content:center;align-items:center;background:#000;width:100%;">
+      <!-- 动态插入 img 或 video -->
+    </div>
+    <div class="modal-info">
+      <span id="modalName">文件名</span>
+      <span id="modalMeta">大小 · 时间</span>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  // ============================================================
+  // ⚙️ 您的 Cloudinary 配置（已硬编码）
+  // ============================================================
+  const CLOUD_NAME = 'do4vo05jd';
+  const UPLOAD_PRESET = 'my_unsigned_preset';
+
+  // ============================================================
+  // 1. 本地存储管理（图片/视频列表）
+  // ============================================================
+  const STORAGE_KEY = 'cloudinary_media_list';
+
+  function getLocalMedia() {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch { return []; }
+  }
+
+  function saveLocalMedia(items) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  }
+
+  // ============================================================
+  // 2. 上传到 Cloudinary（支持图片/视频）
+  // ============================================================
+  async function uploadToCloudinary(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', UPLOAD_PRESET);
+
+    // 根据文件类型显式设置 resource_type，便于 Cloudinary 处理
+    let url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`;
+    if (file.type.startsWith('video/')) {
+      url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`;
+    }
+
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`上传失败 (${response.status}): ${errorText}`);
+    }
+
+    const result = await response.json();
+    // result.resource_type 可能是 'image' 或 'video'
+    return {
+      publicId: result.public_id,
+      url: result.secure_url,
+      originalName: file.name,
+      size: file.size,
+      uploadTime: new Date().toISOString(),
+      resourceType: result.resource_type || (file.type.startsWith('video/') ? 'video' : 'image')
+    };
+  }
+
+  // ============================================================
+  // 3. 生成缩略图 URL（视频用首帧截图）
+  // ============================================================
+  function getThumbnailUrl(item) {
+    if (item.resourceType === 'image') {
+      return item.url; // 图片直接用原图
+    } else {
+      // 视频：生成首帧缩略图（第0秒）
+      // 格式：https://res.cloudinary.com/cloud_name/video/upload/so_0,f_jpg/public_id
+      // 注意 publicId 不包含扩展名
+      return `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/so_0,f_jpg/${item.publicId}`;
+    }
+  }
+
+  // ============================================================
+  // 4. 渲染
+  // ============================================================
+  const gallery = document.getElementById('gallery');
+  const countLabel = document.getElementById('countLabel');
+
+  function render(items) {
+    if (!items || items.length === 0) {
+      gallery.innerHTML = `<div class="empty"><span class="big">🖼️</span>还没有文件，上传吧！</div>`;
+      countLabel.textContent = '0';
+      return;
+    }
+
+    const sorted = [...items].sort((a, b) => new Date(b.uploadTime) - new Date(a.uploadTime));
+    let html = '';
+    for (const item of sorted) {
+      const thumbUrl = getThumbnailUrl(item);
+      const isVideo = item.resourceType === 'video';
+      // 卡片内显示缩略图（图片或视频首帧）
+      html += `
+        <div class="card" data-id="${item.publicId}">
+          <div class="media-wrapper" onclick="previewMedia('${item.publicId}')">
+            <img src="${thumbUrl}" alt="${item.originalName}" loading="lazy" />
+          </div>
+          <div class="info">
+            <div class="name" title="${item.originalName}">${item.originalName}</div>
+            <div class="meta">
+              <span>${formatSize(item.size)}</span>
+              <span>${formatTime(item.uploadTime)}</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-sm btn-danger" onclick="deleteHandler('${item.publicId}')">删除</button>
+          </div>
+        </div>
+      `;
+    }
+    gallery.innerHTML = html;
+    countLabel.textContent = items.length;
+  }
+
+  function loadMedia() {
+    const items = getLocalMedia();
+    render(items);
+  }
+
+  // 删除（仅本地移除）
+  window.deleteHandler = function(publicId) {
+    if (!confirm('从列表中移除该文件？（云端文件不会被删除）')) return;
+    let items = getLocalMedia();
+    items = items.filter(item => item.publicId !== publicId);
+    saveLocalMedia(items);
+    render(items);
+    showToast('已从列表移除', 'info');
+  };
+
+  document.getElementById('clearAllBtn').addEventListener('click', () => {
+    const items = getLocalMedia();
+    if (items.length === 0) {
+      showToast('还没有文件可清空', 'info');
+      return;
+    }
+    if (!confirm(`确定从列表中移除全部 ${items.length} 个文件吗？`)) return;
+    saveLocalMedia([]);
+    render([]);
+    showToast('已清空列表', 'info');
+  });
+
+  // ============================================================
+  // 5. 上传处理
+  // ============================================================
+  const uploadZone = document.getElementById('uploadZone');
+  const fileInput = document.getElementById('fileInput');
+
+  uploadZone.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', async (e) => {
+    const files = e.target.files;
+    if (files.length === 0) return;
+    await handleUploadFiles(files);
+    fileInput.value = '';
+  });
+
+  uploadZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadZone.classList.add('dragover');
+  });
+  uploadZone.addEventListener('dragleave', () => {
+    uploadZone.classList.remove('dragover');
+  });
+  uploadZone.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length === 0) return;
+    await handleUploadFiles(files);
+  });
+
+  async function handleUploadFiles(files) {
+    const validFiles = [];
+    for (const f of files) {
+      const isImage = f.type.startsWith('image/');
+      const isVideo = f.type === 'video/mp4';
+      if (!isImage && !isVideo) {
+        showToast(`"${f.name}" 不是图片或 MP4 视频，已跳过`, 'error');
+        continue;
+      }
+      if (f.size > 100 * 1024 * 1024) {
+        showToast(`"${f.name}" 超过 100MB (Cloudinary 免费限制)，已跳过`, 'error');
+        continue;
+      }
+      validFiles.push(f);
+    }
+
+    if (validFiles.length === 0) return;
+
+    let uploaded = 0;
+    const newItems = [];
+    for (const file of validFiles) {
+      try {
+        const result = await uploadToCloudinary(file);
+        newItems.push(result);
+        uploaded++;
+      } catch (err) {
+        showToast(`上传 "${file.name}" 失败: ${err.message}`, 'error');
+      }
+    }
+
+    if (uploaded === 0) {
+      showToast('没有成功上传任何文件', 'error');
+      return;
+    }
+
+    const existing = getLocalMedia();
+    const updated = [...existing, ...newItems];
+    saveLocalMedia(updated);
+    render(updated);
+    showToast(`✅ 成功上传 ${uploaded} 个文件`, 'success');
+  }
+
+  // ============================================================
+  // 6. 预览（图片或视频）
+  // ============================================================
+  const modal = document.getElementById('modal');
+  const modalMediaContainer = document.getElementById('modalMediaContainer');
+  const modalName = document.getElementById('modalName');
+  const modalMeta = document.getElementById('modalMeta');
+
+  window.previewMedia = function(publicId) {
+    const items = getLocalMedia();
+    const item = items.find(i => i.publicId === publicId);
+    if (!item) {
+      showToast('文件不存在', 'error');
+      return;
+    }
+
+    // 清空容器
+    modalMediaContainer.innerHTML = '';
+
+    if (item.resourceType === 'image') {
+      const img = document.createElement('img');
+      img.src = item.url;
+      img.alt = item.originalName;
+      modalMediaContainer.appendChild(img);
+    } else {
+      // 视频
+      const video = document.createElement('video');
+      video.src = item.url;
+      video.controls = true;
+      video.autoplay = true;
+      video.style.maxWidth = '100%';
+      video.style.maxHeight = '85vh';
+      modalMediaContainer.appendChild(video);
+    }
+
+    modalName.textContent = item.originalName;
+    modalMeta.textContent = `${formatSize(item.size)} · ${formatTime(item.uploadTime)}`;
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  };
+
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+  function closeModal() {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+    // 清空容器，释放视频资源
+    setTimeout(() => {
+      modalMediaContainer.innerHTML = '';
+    }, 300);
+  }
+
+  // ============================================================
+  // 7. 工具函数
+  // ============================================================
+  function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    return (bytes / (1024 * 1024 * 1024)).toFixed(1) + ' GB';
+  }
+
+  function formatTime(iso) {
+    const d = new Date(iso);
+    return d.toLocaleString('zh-CN', { hour12: false });
+  }
+
+  function showToast(msg, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = msg;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(40px)';
+      toast.style.transition = 'all 0.3s';
+      setTimeout(() => toast.remove(), 300);
+    }, 2800);
+  }
+
+  // ============================================================
+  // 8. 启动
+  // ============================================================
+  loadMedia();
+  console.log('📸 支持图片 + MP4 视频，Cloud Name:', CLOUD_NAME);
+</script>
+</body>
+</html>
