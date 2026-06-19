@@ -5,365 +5,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>📸 图片 & 视频共享库</title>
   <style>
-    /* ===== 全局重置 ===== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    /* ===== 全局样式 ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: #f5f7fb; color: #1e293b; padding: 24px; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    h1 { font-size: 28px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+    h1 small { font-size: 16px; font-weight: 400; color: #64748b; }
 
-    body {
-      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-      background: #f5f7fb;
-      color: #1e293b;
-      padding: 24px;
-    }
+    /* 上传区域 */
+    .upload-area { background: #fff; border: 2px dashed #cbd5e1; border-radius: 16px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.3s; margin-bottom: 30px; }
+    .upload-area:hover { border-color: #3b82f6; background: #f8fafc; }
+    .upload-area.dragover { border-color: #3b82f6; background: #eff6ff; transform: scale(1.01); }
+    .upload-area .icon { font-size: 48px; display: block; margin-bottom: 8px; }
+    .upload-area h3 { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+    .upload-area p { color: #64748b; font-size: 14px; }
+    .upload-area input[type="file"] { display: none; }
 
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+    /* 工具栏 */
+    .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .toolbar .info { font-size: 15px; color: #475569; }
+    .toolbar .info strong { color: #0f172a; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border: none; border-radius: 30px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; background: #e2e8f0; color: #1e293b; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+    .btn-danger { background: #fee2e2; color: #b91c1c; }
+    .btn-danger:hover { background: #fecaca; }
+    .btn-sm { padding: 4px 12px; font-size: 12px; }
 
-    h1 {
-      font-size: 28px;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    /* 画廊 */
+    .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+    .card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: all 0.3s; cursor: pointer; }
+    .card:hover { transform: translateY(-6px); box-shadow: 0 12px 28px rgba(0,0,0,0.10); }
+    .card .media-wrapper { width: 100%; padding-top: 100%; position: relative; background: #f1f5f9; overflow: hidden; }
+    .card .media-wrapper img, .card .media-wrapper video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+    .card .info { padding: 12px 14px; font-size: 13px; }
+    .card .info .name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card .info .meta { color: #64748b; font-size: 12px; margin-top: 4px; display: flex; justify-content: space-between; }
+    .card .actions { display: flex; justify-content: flex-end; padding: 4px 14px 12px; gap: 6px; }
+    .empty { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #94a3b8; }
+    .empty .big { font-size: 64px; display: block; margin-bottom: 12px; }
 
-    h1 small {
-      font-size: 16px;
-      font-weight: 400;
-      color: #64748b;
-    }
+    /* 模态框 */
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 999; padding: 30px; }
+    .modal.active { display: flex; }
+    .modal-content { max-width: 90vw; max-height: 90vh; background: #fff; border-radius: 16px; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+    .modal-content img, .modal-content video { display: block; max-width: 100%; max-height: 85vh; margin: 0 auto; }
+    .modal-content video { width: 100%; height: auto; }
+    .modal-close { position: absolute; top: 12px; right: 16px; background: rgba(0,0,0,0.5); color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 24px; cursor: pointer; transition: all 0.2s; z-index: 10; display: flex; align-items: center; justify-content: center; line-height: 1; }
+    .modal-close:hover { background: rgba(0,0,0,0.8); transform: rotate(90deg); }
+    .modal-info { padding: 14px 20px; background: #f8fafc; font-size: 14px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
 
-    /* ===== 上传区域 ===== */
-    .upload-area {
-      background: #fff;
-      border: 2px dashed #cbd5e1;
-      border-radius: 16px;
-      padding: 40px 20px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin-bottom: 30px;
-    }
+    /* Toast */
+    .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast { padding: 12px 20px; border-radius: 10px; background: #0f172a; color: #fff; font-size: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.20); animation: slideIn 0.3s ease; }
+    .toast.success { background: #166534; }
+    .toast.error { background: #991b1b; }
+    @keyframes slideIn { from { transform: translateX(60px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-    .upload-area:hover {
-      border-color: #3b82f6;
-      background: #f8fafc;
-    }
-
-    .upload-area.dragover {
-      border-color: #3b82f6;
-      background: #eff6ff;
-      transform: scale(1.01);
-    }
-
-    .upload-area .icon {
-      font-size: 48px;
-      display: block;
-      margin-bottom: 8px;
-    }
-
-    .upload-area h3 {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-
-    .upload-area p {
-      color: #64748b;
-      font-size: 14px;
-    }
-
-    .upload-area input[type="file"] {
-      display: none;
-    }
-
-    /* ===== 工具栏 ===== */
-    .toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .toolbar .info {
-      font-size: 15px;
-      color: #475569;
-    }
-
-    .toolbar .info strong {
-      color: #0f172a;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 18px;
-      border: none;
-      border-radius: 30px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      background: #e2e8f0;
-      color: #1e293b;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    }
-
-    .btn-danger {
-      background: #fee2e2;
-      color: #b91c1c;
-    }
-
-    .btn-danger:hover {
-      background: #fecaca;
-    }
-
-    .btn-sm {
-      padding: 4px 12px;
-      font-size: 12px;
-    }
-
-    /* ===== 画廊网格 ===== */
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-
-    .card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.10);
-    }
-
-    .card .media-wrapper {
-      width: 100%;
-      padding-top: 100%;
-      position: relative;
-      background: #f1f5f9;
-      overflow: hidden;
-    }
-
-    .card .media-wrapper img,
-    .card .media-wrapper video {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .card .info {
-      padding: 12px 14px;
-      font-size: 13px;
-    }
-
-    .card .info .name {
-      font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .card .info .meta {
-      color: #64748b;
-      font-size: 12px;
-      margin-top: 4px;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .card .actions {
-      display: flex;
-      justify-content: flex-end;
-      padding: 4px 14px 12px;
-      gap: 6px;
-    }
-
-    .empty {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 60px 20px;
-      color: #94a3b8;
-    }
-
-    .empty .big {
-      font-size: 64px;
-      display: block;
-      margin-bottom: 12px;
-    }
-
-    /* ===== 模态框 ===== */
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(6px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      padding: 30px;
-    }
-
-    .modal.active {
-      display: flex;
-    }
-
-    .modal-content {
-      max-width: 90vw;
-      max-height: 90vh;
-      background: #fff;
-      border-radius: 16px;
-      overflow: hidden;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .modal-content img,
-    .modal-content video {
-      display: block;
-      max-width: 100%;
-      max-height: 85vh;
-      margin: 0 auto;
-    }
-
-    .modal-content video {
-      width: 100%;
-      height: auto;
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 12px;
-      right: 16px;
-      background: rgba(0, 0, 0, 0.5);
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 24px;
-      cursor: pointer;
-      transition: all 0.2s;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 1;
-    }
-
-    .modal-close:hover {
-      background: rgba(0, 0, 0, 0.8);
-      transform: rotate(90deg);
-    }
-
-    .modal-info {
-      padding: 14px 20px;
-      background: #f8fafc;
-      font-size: 14px;
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    /* ===== Toast 通知 ===== */
-    .toast-container {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .toast {
-      padding: 12px 20px;
-      border-radius: 10px;
-      background: #0f172a;
-      color: #fff;
-      font-size: 14px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.20);
-      animation: slideIn 0.3s ease;
-    }
-
-    .toast.success {
-      background: #166534;
-    }
-
-    .toast.error {
-      background: #991b1b;
-    }
-
-    @keyframes slideIn {
-      from {
-        transform: translateX(60px);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-
-    /* ===== 响应式 ===== */
-    @media (max-width: 640px) {
-      body {
-        padding: 12px;
-      }
-      .gallery {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 14px;
-      }
-      .upload-area {
-        padding: 28px 16px;
-      }
-      .upload-area .icon {
-        font-size: 36px;
-      }
-      .modal-content {
-        max-width: 98vw;
-        max-height: 80vh;
-      }
-    }
-
-    @media (max-width: 400px) {
-      .gallery {
-        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-        gap: 10px;
-      }
-    }
+    /* 响应式 */
+    @media (max-width: 640px) { body { padding: 12px; } .gallery { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; } .upload-area { padding: 28px 16px; } .upload-area .icon { font-size: 36px; } .modal-content { max-width: 98vw; max-height: 80vh; } }
+    @media (max-width: 400px) { .gallery { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; } }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>📸 图片 &amp; 视频共享库 <small>· 通过 media.nnepie.com 代理</small></h1>
 
-    <!-- 上传区域 -->
     <div class="upload-area" id="uploadZone">
       <span class="icon">🖼️</span>
       <h3>点击或拖拽上传图片 / MP4 视频</h3>
@@ -371,23 +77,19 @@
       <input type="file" id="fileInput" accept="image/*,video/mp4" multiple />
     </div>
 
-    <!-- 工具栏 -->
     <div class="toolbar">
       <div class="info">📂 共 <strong id="countLabel">0</strong> 个文件</div>
       <button class="btn btn-danger" id="clearAllBtn">🗑️ 清空全部</button>
     </div>
 
-    <!-- 图片/视频列表 -->
     <div class="gallery" id="gallery"></div>
   </div>
 
-  <!-- 大图/视频预览模态框 -->
+  <!-- 模态框 -->
   <div class="modal" id="modal">
     <div class="modal-content">
       <button class="modal-close" id="modalClose">✕</button>
-      <div id="modalMediaContainer" style="display:flex;justify-content:center;align-items:center;background:#000;width:100%;">
-        <!-- 动态插入 img 或 video -->
-      </div>
+      <div id="modalMediaContainer" style="display:flex;justify-content:center;align-items:center;background:#000;width:100%;"></div>
       <div class="modal-info">
         <span id="modalName">文件名</span>
         <span id="modalMeta">大小 · 时间</span>
@@ -395,7 +97,6 @@
     </div>
   </div>
 
-  <!-- Toast 容器 -->
   <div class="toast-container" id="toastContainer"></div>
 
   <script>
@@ -404,10 +105,10 @@
     // ================================================================
     const CLOUD_NAME = 'do4vo05jd';
     const UPLOAD_PRESET = 'my_unsigned_preset';
-    const PROXY_DOMAIN = 'https://media.nnepie.com';   // 您的代理域名
+    const PROXY_DOMAIN = 'https://media.nnepie.com';
 
     // ================================================================
-    //  本地存储 (localStorage)
+    //  本地存储
     // ================================================================
     const STORAGE_KEY = 'cloudinary_media_list';
 
@@ -449,8 +150,9 @@
 
       const result = await response.json();
 
-      // 🔑 关键：将 Cloudinary 域名替换为代理域名
-      const path = result.url.replace(/^https:\/\/res\.cloudinary\.com\/do4vo05jd/, '');
+      // 🔑 使用 URL 对象安全提取路径部分（包含 pathname + search）
+      const urlObj = new URL(result.url);
+      const path = urlObj.pathname + urlObj.search;   // 例如: /image/upload/v123/xxx.jpg
       const proxyUrl = `${PROXY_DOMAIN}${path}`;
 
       return {
