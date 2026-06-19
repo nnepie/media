@@ -400,7 +400,7 @@
 
   <script>
     // ================================================================
-    //  配置
+    //  配置（您的 Cloudinary 和代理域名）
     // ================================================================
     const CLOUD_NAME = 'do4vo05jd';
     const UPLOAD_PRESET = 'my_unsigned_preset';
@@ -425,7 +425,7 @@
     }
 
     // ================================================================
-    //  上传到 Cloudinary
+    //  上传到 Cloudinary（修复：使用 urlObj.pathname）
     // ================================================================
     async function uploadToCloudinary(file) {
       const formData = new FormData();
@@ -449,14 +449,14 @@
 
       const result = await response.json();
 
-      // 🔑 关键修复：使用 URL 对象提取纯净路径（pathname + search）
+      // ✅ 关键修复：使用 URL 对象提取 pathname（不含域名和查询参数）
       const urlObj = new URL(result.url);
-      const path = urlObj.pathname + urlObj.search;   // 例如: /image/upload/v123/xxx.jpg
+      const path = urlObj.pathname;          // 例如: /image/upload/v123/xxx.jpg
       const proxyUrl = `${PROXY_DOMAIN}${path}`;
 
       return {
         publicId: result.public_id,
-        url: proxyUrl,                    // 存储代理后的 URL
+        url: proxyUrl,
         originalName: file.name,
         size: file.size,
         uploadTime: new Date().toISOString(),
@@ -469,9 +469,9 @@
     // ================================================================
     function getThumbnailUrl(item) {
       if (item.resourceType === 'image') {
-        return item.url;   // 已是代理地址
+        return item.url;
       } else {
-        // 视频首帧：so_0 表示第0秒，f_jpg 强制输出jpg
+        // 视频首帧缩略图：so_0 第0秒，f_jpg 输出jpg
         return `${PROXY_DOMAIN}/video/upload/so_0,f_jpg/${item.publicId}`;
       }
     }
