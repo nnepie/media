@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>📸 Image & Video Share Library</title>
+  <title>📸 图片 & 视频共享库</title>
   <style>
-    /* ===== Styles ===== */
+    /* ===== 样式 ===== */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: system-ui; background: #f5f7fb; padding: 24px; }
     .container { max-width: 1200px; margin: 0 auto; }
@@ -117,23 +117,23 @@
 </head>
 <body>
 <div class="container">
-  <h1>📸 Image & Video Share Library <small>· NNEPIE Media</small></h1>
+  <h1>📸 图片 & 视频共享库 <small>· 通过 media.nnepie.com 代理</small></h1>
 
-  <!-- Upload area -->
+  <!-- 上传区域 -->
   <div class="upload-area" id="uploadZone">
     <span class="icon">🖼️</span>
-    <h3>Click or drag to upload images / MP4 videos</h3>
-    <p>Supports JPG / PNG / GIF / WebP / MP4, max 100MB per file</p>
+    <h3>点击或拖拽上传图片 / MP4 视频</h3>
+    <p>支持 JPG / PNG / GIF / WebP / MP4，单文件 ≤ 100MB</p>
     <input type="file" id="fileInput" accept="image/*,video/mp4" multiple />
   </div>
 
-  <!-- Toolbar -->
+  <!-- 工具栏 -->
   <div class="toolbar">
-    <div class="info">📂 Total <strong id="countLabel">0</strong> files</div>
-    <button class="btn btn-danger" id="clearAllBtn">🗑️ Clear All</button>
+    <div class="info">📂 共 <strong id="countLabel">0</strong> 个文件</div>
+    <button class="btn btn-danger" id="clearAllBtn">🗑️ 清空全部</button>
   </div>
 
-  <!-- Gallery -->
+  <!-- 列表 -->
   <div class="gallery" id="gallery"></div>
 </div>
 
@@ -142,11 +142,11 @@
   <div class="modal-content">
     <button class="modal-close" id="modalClose">✕</button>
     <div id="modalMediaContainer" style="display:flex;justify-content:center;align-items:center;background:#000;width:100%;">
-      <!-- Dynamic img or video inserted here -->
+      <!-- 动态插入 img 或 video -->
     </div>
     <div class="modal-info">
-      <span id="modalName">Filename</span>
-      <span id="modalMeta">Size · Time</span>
+      <span id="modalName">文件名</span>
+      <span id="modalMeta">大小 · 时间</span>
     </div>
   </div>
 </div>
@@ -156,13 +156,18 @@
 
 <script>
   // ============================================================
-  // ⚙️ Your config (hardcoded)
+  // ⚙️ Cloudinary 配置（已硬编码）
   // ============================================================
-  const CLOUD_NAME = 'do4vo05jd';              // ✅ Your Cloud Name
-  const UPLOAD_PRESET = 'my_unsigned_preset';  // ✅ Your Upload Preset
+  const CLOUD_NAME = 'do4vo05jd';
+  const UPLOAD_PRESET = 'my_unsigned_preset';
 
   // ============================================================
-  // 1. Local storage management (image/video list)
+  // 图片代理域名（您自己的域名）
+  // ============================================================
+  const PROXY_DOMAIN = 'https://media.nnepie.com';
+
+  // ============================================================
+  // 1. 本地存储管理（图片/视频列表）
   // ============================================================
   const STORAGE_KEY = 'cloudinary_media_list';
 
@@ -178,7 +183,7 @@
   }
 
   // ============================================================
-  // 2. Upload (supports images/videos)
+  // 2. 上传到 Cloudinary（支持图片/视频）
   // ============================================================
   async function uploadToCloudinary(file) {
     const formData = new FormData();
@@ -197,13 +202,18 @@
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Upload failed (${response.status}): ${errorText}`);
+      throw new Error(`上传失败 (${response.status}): ${errorText}`);
     }
 
     const result = await response.json();
+    // 提取路径（去掉Cloudinary域名部分）
+    const path = result.url.replace(/^https:\/\/res\.cloudinary\.com\/do4vo05jd/, '');
+    // 构建代理后的完整URL
+    const proxyUrl = `${PROXY_DOMAIN}${path}`;
+
     return {
       publicId: result.public_id,
-      url: result.secure_url,
+      url: proxyUrl,                          // ← 存储代理后的URL
       originalName: file.name,
       size: file.size,
       uploadTime: new Date().toISOString(),
@@ -212,26 +222,27 @@
   }
 
   // ============================================================
-  // 3. Generate thumbnail URL (first frame for video)
+  // 3. 生成缩略图 URL（视频用首帧截图）
   // ============================================================
   function getThumbnailUrl(item) {
     if (item.resourceType === 'image') {
-      return item.url;
+      return item.url;  // 已经是代理地址
     } else {
-      // Video first frame
-      return `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/so_0,f_jpg/${item.publicId}`;
+      // 视频首帧缩略图：需要构造代理地址
+      // 格式：https://media.nnepie.com/video/upload/so_0,f_jpg/{publicId}
+      return `${PROXY_DOMAIN}/video/upload/so_0,f_jpg/${item.publicId}`;
     }
   }
 
   // ============================================================
-  // 4. Rendering
+  // 4. 渲染
   // ============================================================
   const gallery = document.getElementById('gallery');
   const countLabel = document.getElementById('countLabel');
 
   function render(items) {
     if (!items || items.length === 0) {
-      gallery.innerHTML = `<div class="empty"><span class="big">🖼️</span>No files yet, upload some!</div>`;
+      gallery.innerHTML = `<div class="empty"><span class="big">🖼️</span>还没有文件，上传吧！</div>`;
       countLabel.textContent = '0';
       return;
     }
@@ -253,7 +264,7 @@
             </div>
           </div>
           <div class="actions">
-            <button class="btn btn-sm btn-danger" onclick="deleteHandler('${item.publicId}')">Delete</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteHandler('${item.publicId}')">删除</button>
           </div>
         </div>
       `;
@@ -267,30 +278,30 @@
     render(items);
   }
 
-  // Delete (local removal only)
+  // 删除（仅本地移除）
   window.deleteHandler = function(publicId) {
-    if (!confirm('Remove this file from the list? (Cloud file will not be deleted)')) return;
+    if (!confirm('从列表中移除该文件？（云端文件不会被删除）')) return;
     let items = getLocalMedia();
     items = items.filter(item => item.publicId !== publicId);
     saveLocalMedia(items);
     render(items);
-    showToast('Removed from list', 'info');
+    showToast('已从列表移除', 'info');
   };
 
   document.getElementById('clearAllBtn').addEventListener('click', () => {
     const items = getLocalMedia();
     if (items.length === 0) {
-      showToast('No files to clear', 'info');
+      showToast('还没有文件可清空', 'info');
       return;
     }
-    if (!confirm(`Are you sure you want to remove all ${items.length} files from the list?`)) return;
+    if (!confirm(`确定从列表中移除全部 ${items.length} 个文件吗？`)) return;
     saveLocalMedia([]);
     render([]);
-    showToast('List cleared', 'info');
+    showToast('已清空列表', 'info');
   });
 
   // ============================================================
-  // 5. Upload handling
+  // 5. 上传处理
   // ============================================================
   const uploadZone = document.getElementById('uploadZone');
   const fileInput = document.getElementById('fileInput');
@@ -325,11 +336,11 @@
       const isImage = f.type.startsWith('image/');
       const isVideo = f.type === 'video/mp4';
       if (!isImage && !isVideo) {
-        showToast(`"${f.name}" is not an image or MP4 video, skipped`, 'error');
+        showToast(`"${f.name}" 不是图片或 MP4 视频，已跳过`, 'error');
         continue;
       }
       if (f.size > 100 * 1024 * 1024) {
-        showToast(`"${f.name}" exceeds 100MB (Cloudinary free limit), skipped`, 'error');
+        showToast(`"${f.name}" 超过 100MB (Cloudinary 免费限制)，已跳过`, 'error');
         continue;
       }
       validFiles.push(f);
@@ -345,12 +356,12 @@
         newItems.push(result);
         uploaded++;
       } catch (err) {
-        showToast(`Upload "${file.name}" failed: ${err.message}`, 'error');
+        showToast(`上传 "${file.name}" 失败: ${err.message}`, 'error');
       }
     }
 
     if (uploaded === 0) {
-      showToast('No files uploaded successfully', 'error');
+      showToast('没有成功上传任何文件', 'error');
       return;
     }
 
@@ -358,11 +369,11 @@
     const updated = [...existing, ...newItems];
     saveLocalMedia(updated);
     render(updated);
-    showToast(`✅ Successfully uploaded ${uploaded} files`, 'success');
+    showToast(`✅ 成功上传 ${uploaded} 个文件`, 'success');
   }
 
   // ============================================================
-  // 6. Preview (image or video)
+  // 6. 预览（图片或视频）
   // ============================================================
   const modal = document.getElementById('modal');
   const modalMediaContainer = document.getElementById('modalMediaContainer');
@@ -373,7 +384,7 @@
     const items = getLocalMedia();
     const item = items.find(i => i.publicId === publicId);
     if (!item) {
-      showToast('File not found', 'error');
+      showToast('文件不存在', 'error');
       return;
     }
 
@@ -381,12 +392,12 @@
 
     if (item.resourceType === 'image') {
       const img = document.createElement('img');
-      img.src = item.url;
+      img.src = item.url;  // 代理地址
       img.alt = item.originalName;
       modalMediaContainer.appendChild(img);
     } else {
       const video = document.createElement('video');
-      video.src = item.url;
+      video.src = item.url;  // 代理地址
       video.controls = true;
       video.autoplay = true;
       video.style.maxWidth = '100%';
@@ -413,7 +424,7 @@
   }
 
   // ============================================================
-  // 7. Utility functions
+  // 7. 工具函数
   // ============================================================
   function formatSize(bytes) {
     if (bytes < 1024) return bytes + ' B';
@@ -442,10 +453,10 @@
   }
 
   // ============================================================
-  // 8. Startup
+  // 8. 启动
   // ============================================================
   loadMedia();
-  console.log('📸 Ready, Cloud Name:', CLOUD_NAME);
+  console.log('📸 页面已加载，代理域名:', PROXY_DOMAIN);
 </script>
 </body>
 </html>
