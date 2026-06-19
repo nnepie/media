@@ -243,6 +243,55 @@
             object-fit: cover;
         }
 
+        /* ---- Play button overlay for videos ---- */
+        .card .media-wrapper .play-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            /* allow click to pass through to the wrapper */;
+            background: rgba(0, 0, 0, 0.15);
+            transition: background 0.3s;
+        }
+
+        .card .media-wrapper .play-overlay .play-icon {
+            font-size: 48px;
+            color: #fff;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+            opacity: 0.8;
+            transition: transform 0.2s, opacity 0.2s;
+            line-height: 1;
+        }
+
+        .card:hover .media-wrapper .play-overlay .play-icon {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+
+        /* ---- Thumbnail fallback image for videos ---- */
+        .card .media-wrapper .thumbnail-fallback {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+            background: #1e293b;
+            color: #94a3b8;
+            font-size: 48px;
+        }
+
+        .card .media-wrapper img.error + .thumbnail-fallback {
+            display: flex;
+        }
+
         .card .info {
             padding: 12px 14px;
             font-size: 13px;
@@ -495,6 +544,9 @@
             .site-logo {
                 height: 36px;
             }
+            .card .media-wrapper .play-overlay .play-icon {
+                font-size: 36px;
+            }
         }
 
         @media (max-width: 400px) {
@@ -723,10 +775,31 @@
                 var item = sorted[i];
                 var thumbUrl = getThumbnailUrl(item);
                 var displayName = getDisplayName(item.originalName);
+                var isVideo = (item.resourceType === 'video');
+
                 html += '<div class="card" data-id="' + item.publicId + '">';
                 html += '<div class="media-wrapper" onclick="copyMedia(\'' + item.publicId + '\')">';
-                html += '<img src="' + thumbUrl + '" alt="' + displayName + '" loading="lazy" />';
-                html += '</div>';
+
+                // Thumbnail image
+                html += '<img src="' + thumbUrl + '" alt="' + displayName + '" loading="lazy"';
+                // if video, add onerror to show fallback icon
+                if (isVideo) {
+                    html += ' onerror="this.style.display=\'none\'; this.parentNode.querySelector(\'.thumbnail-fallback\').style.display=\'flex\';"';
+                }
+                html += ' />';
+
+                // Fallback for video thumbnails (if image fails to load)
+                if (isVideo) {
+                    html += '<div class="thumbnail-fallback" style="display:none;">🎬</div>';
+                }
+
+                // Play button overlay (only for videos)
+                if (isVideo) {
+                    html += '<div class="play-overlay"><span class="play-icon">▶</span></div>';
+                }
+
+                html += '</div>'; // .media-wrapper
+
                 html += '<div class="info">';
                 html += '<div class="name" title="' + displayName + '" onclick="previewMedia(\'' + item.publicId +
                     '\')">' + displayName + '</div>';
@@ -804,7 +877,6 @@
                 video.style.maxWidth = '100%';
                 video.style.maxHeight = '85vh';
                 video.onclick = function() { copyUrl(item.url); };
-                // fallback if video fails to load
                 video.onerror = function() {
                     showToast('Failed to load video. The file may be corrupted or the proxy is not working.', 'error');
                 };
@@ -933,7 +1005,7 @@
                 originalName: file.name,
                 size: file.size,
                 uploadTime: new Date().toISOString(),
-                resourceType: resourceType, // Use our determined type
+                resourceType: resourceType,
             };
         }
 
@@ -1022,7 +1094,6 @@
         // ================================================================
         loadMedia();
     </script>
-    <br>
     <script src="https://www.nnepie.com/js/data.js"></script>
 </body>
 </html>
