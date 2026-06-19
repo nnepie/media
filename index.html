@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Image &amp; Video Sharing Library - Free Online Media Gallery | NNEPIE.COM</title>
-    <meta name="description" content="Upload, manage, and share images and MP4 videos with our free online media library. Supports JPG, PNG, GIF, WebP, and MP4 with Cloudinary storage." />
-    <meta name="keywords" content="image sharing, video sharing, media library, photo gallery, video gallery, upload images, upload videos, cloudinary, free media hosting, NNEPIE" />
+    <title>Image &amp; Video Sharing Library – Free Online Media Gallery | NNEPIE.COM</title>
+    <meta name="description" content="Upload, manage, and share images and MP4 videos with our free online media library. Supports JPG, PNG, GIF, WebP, and MP4 with Nnepie storage. Free media hosting and sharing." />
+    <meta name="keywords" content="image sharing, video sharing, media library, photo gallery, video gallery, upload images, upload videos, Nnepie, free media hosting, NNEPIE, JPG, PNG, GIF, WebP, MP4" />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://img.nnepie.com/" />
-    <meta property="og:title" content="Image &amp; Video Sharing Library - Free Online Media Gallery" />
-    <meta property="og:description" content="Upload, manage, and share images and MP4 videos with our free online media library. Supports JPG, PNG, GIF, WebP, and MP4 with Cloudinary storage." />
+    <meta property="og:title" content="Image &amp; Video Sharing Library – Free Online Media Gallery" />
+    <meta property="og:description" content="Upload, manage, and share images and MP4 videos with our free online media library. Supports JPG, PNG, GIF, WebP, and MP4 with Nnepie storage." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://img.nnepie.com/" />
     <meta property="og:site_name" content="NNEPIE.COM Media Library" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Image &amp; Video Sharing Library - Free Online Media Gallery" />
-    <meta name="twitter:description" content="Upload, manage, and share images and MP4 videos with our free online media library. Supports JPG, PNG, GIF, WebP, and MP4 with Cloudinary storage." />
+    <meta name="twitter:title" content="Image &amp; Video Sharing Library – Free Online Media Gallery" />
+    <meta name="twitter:description" content="Upload, manage, and share images and MP4 videos with our free online media library. Supports JPG, PNG, GIF, WebP, and MP4 with Nnepie storage." />
     <link rel="stylesheet" href="/media.css">
     <link rel="shortcut icon" href="https://www.nnepie.com/favicon.ico" />
     <script type="application/ld+json">
@@ -23,8 +23,8 @@
             "@context": "https://schema.org",
             "@type": "WebApplication",
             "name": "Image & Video Sharing Library",
-            "description": "A free online media library for uploading, managing, and sharing images and MP4 videos with Cloudinary storage.",
-            "url": "https://media.nnepie.com/",
+            "description": "A free online media library for uploading, managing, and sharing images and MP4 videos with Nnepie storage.",
+            "url": "https://img.nnepie.com/",
             "applicationCategory": "Multimedia",
             "browserRequirements": "Requires JavaScript",
             "operatingSystem": "All",
@@ -35,32 +35,27 @@
             }
         }
     </script>
-
 </head>
 <body>
     <div class="container">
-
         <header class="site-header">
-            <a href="https://www.nnepie.com" target="_blank"><img class="site-logo"
-            src="https://retro.ws-expo.com/img/nnepie-logo.png"
-            alt="NnePie Logo"
-            loading="lazy" /></a>
+            <a href="https://www.nnepie.com" target="_blank">
+                <img class="site-logo" src="https://retro.ws-expo.com/img/nnepie-logo.png" alt="NnePie Logo" loading="lazy" />
+            </a>
             <h1 class="site-title">
                 📸 Image &amp; Video Sharing Library
                 <small>· <a href="https://www.nnepie.com" target="_blank">NNEPIE.COM</a> Media Library</small>
             </h1>
         </header>
 
+        <!-- Upload Area -->
         <div class="upload-area" id="uploadZone">
-            <!-- Upload content (visible by default) -->
             <div class="upload-content" id="uploadContent">
                 <span class="icon">🖼️</span>
                 <h3>Click or drag to upload images / MP4 videos</h3>
-                <p>Supports JPG / PNG / GIF / WebP / MP4, max 100MB per file</p>
+                <p>Supports JPG, PNG, GIF, WebP, and MP4 – max 92MB per file</p>
                 <input type="file" id="fileInput" accept="image/*,video/mp4" multiple />
             </div>
-
-            <!-- Uploading overlay (hidden by default) -->
             <div class="uploading-overlay" id="uploadingOverlay">
                 <div class="spinner"></div>
                 <div class="uploading-text" id="uploadingText">Uploading files...</div>
@@ -70,7 +65,10 @@
 
         <div class="toolbar">
             <div class="info">📂 Total <strong id="countLabel">0</strong> files</div>
-            <button class="btn btn-danger" id="clearAllBtn">🗑️ Clear All</button>
+            <div class="btn-group">
+                <button class="btn btn-success" id="copyAllBtn">📋 Copy All Links</button>
+                <button class="btn btn-danger" id="clearAllBtn">🗑️ Clear All</button>
+            </div>
         </div>
 
         <div class="gallery" id="gallery"></div>
@@ -81,6 +79,40 @@
             <button class="btn btn-sm btn-primary" id="nextPage" disabled>Next</button>
         </div>
 
+        <section class="help-section">
+            <details>
+                <summary>📖 How to Use This Media Library</summary>
+                <div class="content">
+                    <p><strong>Uploading files:</strong> Click the upload area or drag and drop your images (JPG, PNG, GIF, WebP) or MP4 videos. Each file must be under 92MB.</p>
+                    <p><strong>Managing files:</strong> Each uploaded file appears as a card. You can:</p>
+                    <ul>
+                        <li><strong>Copy a single URL:</strong> Click on the thumbnail or the file name – the direct link is copied to your clipboard.</li>
+                        <li><strong>Copy all URLs on the current page:</strong> Use the <strong>“Copy All Links”</strong> button in the toolbar. All URLs from the current page (up to 50 items) are copied, one per line.</li>
+                        <li><strong>Preview:</strong> Click the file name to open a larger view with playback controls for videos.</li>
+                        <li><strong>Delete:</strong> Remove a file from your local list (the cloud copy remains intact).</li>
+                    </ul>
+                    <p><strong>Pagination:</strong> Use the Previous/Next buttons to navigate through your collection. The library stores your uploaded files in your browser’s local storage.</p>
+                    <p><strong>Free &amp; secure:</strong> All media is hosted on <strong>NNEPIE</strong> with automatic optimization (<code>q_auto,f_auto</code>). Your files are private to your device – we do not store them on our servers.</p>
+                </div>
+            </details>
+            <details>
+                <summary>❓ Frequently Asked Questions</summary>
+                <div class="content">
+                    <p><strong>What file formats are supported?</strong><br /> We support <strong>JPG, PNG, GIF, WebP</strong> for images and <strong>MP4</strong> for videos. Other formats are not accepted.</p>
+                    <p><strong>Is there a file size limit?</strong><br /> 
+                    Yes, the free Nnepie plan limits each file to <strong>92 MB</strong>. Larger files will be rejected.</p>
+                    <p><strong>How long are my files stored?</strong><br /> 
+                    Files are stored on Nnepie with your upload preset. They remain available as long as NNEPIE keeps them. This library does not delete your cloud files; it only manages the list in your browser’s local storage.</p>
+                    <p><strong>Can I share my files with others?</strong><br /> Absolutely – each file gets a permanent, shareable URL. Use the copy functions to get the link and share it anywhere.</p>
+                    <p><strong>What happens when I clear the list?</strong><br /> The “Clear All” button removes all entries from your local list, but <strong>does not delete</strong> the actual files from Nnepie. You can re-add them later by uploading again or by manually re-adding the URLs (not yet supported).</p>
+                    <p><strong>Why is there a proxy domain (<a href="https://img.nnepie.com">img.nnepie.com</a>)?</strong><br /> We use a proxy to add automatic image optimization (<code>q_auto,f_auto</code>) for faster loading and better performance. The original Nnepie URLs are still accessible.</p>
+                    <p><strong>Is this service free?</strong><br />
+                     Yes, this media library is completely free to use for personal and commercial purposes, powered by Nnepie’s free tier.</p>
+                </div>
+            </details>
+        </section>
+
+        <!-- Footer -->
         <footer class="footer">
             <div class="copyright">
                 &copy; <span id="currentYear">2026</span>
@@ -97,10 +129,9 @@
                 <a href="https://www.nnepie.com/faq/" target="_blank">FAQ</a>
             </div>
         </footer>
-
     </div>
 
-    <!-- ===== Modal ===== -->
+    <!-- Modal -->
     <div class="modal" id="modal">
         <div class="modal-content">
             <button class="modal-close" id="modalClose">✕</button>
@@ -112,13 +143,12 @@
         </div>
     </div>
 
+    <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
-
         // ================================================================
-        // Configuration
+        // CONFIGURATION
         // ================================================================
         var CLOUD_NAME = 'do4vo05jd';
         var UPLOAD_PRESET = 'my_unsigned_preset';
@@ -129,7 +159,7 @@
         var currentPage = 1;
 
         // ================================================================
-        // Local Storage Helpers
+        // LOCAL STORAGE HELPERS
         // ================================================================
         function getLocalMedia() {
             try {
@@ -145,7 +175,7 @@
         }
 
         // ================================================================
-        // Utility Functions
+        // UTILITY FUNCTIONS
         // ================================================================
         function getDisplayName(filename) {
             var idx = filename.lastIndexOf('.');
@@ -200,7 +230,7 @@
             input.select();
             try {
                 document.execCommand('copy');
-                showToast('URL copied!', 'success');
+                showToast('Copied!', 'success');
             } catch (e) {
                 showToast('Failed to copy', 'error');
             }
@@ -208,7 +238,45 @@
         }
 
         // ================================================================
-        // Upload UI Controls
+        // COPY ALL LINKS (current page only)
+        // ================================================================
+        function copyAllUrls() {
+            var allItems = getLocalMedia();
+            var total = allItems.length;
+            if (total === 0) {
+                showToast('No files to copy', 'info');
+                return;
+            }
+
+            var start = (currentPage - 1) * PAGE_SIZE;
+            var end = Math.min(start + PAGE_SIZE, total);
+            var pageItems = allItems.slice(start, end);
+
+            if (pageItems.length === 0) {
+                showToast('No files on this page', 'info');
+                return;
+            }
+
+            var urls = pageItems.map(function(item) { return item.url; });
+            var text = urls.join('\n');
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function() {
+                    showToast('✅ Copied ' + pageItems.length + ' links (current page)', 'success');
+                }).catch(function() {
+                    fallbackCopy(text);
+                    showToast('✅ Copied ' + pageItems.length + ' links (current page)', 'success');
+                });
+            } else {
+                fallbackCopy(text);
+                showToast('✅ Copied ' + pageItems.length + ' links (current page)', 'success');
+            }
+        }
+
+        document.getElementById('copyAllBtn').addEventListener('click', copyAllUrls);
+
+        // ================================================================
+        // UPLOAD UI CONTROLS
         // ================================================================
         var uploadZone = document.getElementById('uploadZone');
         var uploadContent = document.getElementById('uploadContent');
@@ -231,19 +299,18 @@
         }
 
         // ================================================================
-        // Thumbnail Generation
+        // THUMBNAIL GENERATION
         // ================================================================
         function getThumbnailUrl(item) {
             if (item.resourceType === 'image') {
                 return item.url;
             } else {
-                // video thumbnail: first frame at 0 seconds, output as jpg
                 return PROXY_DOMAIN + '/video/upload/so_0,f_jpg/' + item.publicId;
             }
         }
 
         // ================================================================
-        // Rendering & Pagination
+        // RENDER & PAGINATION
         // ================================================================
         function render() {
             var allItems = getLocalMedia();
@@ -278,7 +345,6 @@
                 return;
             }
 
-            // Sort by newest first (based on uploadTime)
             var sorted = pageItems.slice().sort(function(a, b) {
                 return new Date(b.uploadTime) - new Date(a.uploadTime);
             });
@@ -292,26 +358,16 @@
 
                 html += '<div class="card" data-id="' + item.publicId + '">';
                 html += '<div class="media-wrapper" onclick="copyMedia(\'' + item.publicId + '\')">';
-
-                // Thumbnail image
                 html += '<img src="' + thumbUrl + '" alt="' + displayName + '" loading="lazy"';
                 if (isVideo) {
                     html += ' onerror="this.style.display=\'none\'; this.parentNode.querySelector(\'.thumbnail-fallback\').style.display=\'flex\';"';
                 }
                 html += ' />';
-
-                // Fallback for video thumbnails
                 if (isVideo) {
                     html += '<div class="thumbnail-fallback" style="display:none;">🎬</div>';
-                }
-
-                // Play button overlay (only for videos)
-                if (isVideo) {
                     html += '<div class="play-overlay"><span class="play-icon">▶</span></div>';
                 }
-
-                html += '</div>'; // .media-wrapper
-
+                html += '</div>';
                 html += '<div class="info">';
                 html += '<div class="name" title="' + displayName + '" onclick="previewMedia(\'' + item.publicId +
                     '\')">' + displayName + '</div>';
@@ -340,7 +396,7 @@
         }
 
         // ================================================================
-        // Media Actions (Copy, Preview, Delete)
+        // MEDIA ACTIONS (Copy, Preview, Delete)
         // ================================================================
         window.copyMedia = function(publicId) {
             var items = getLocalMedia();
@@ -438,7 +494,7 @@
         });
 
         // ================================================================
-        // Pagination Controls
+        // PAGINATION CONTROLS
         // ================================================================
         document.getElementById('prevPage').addEventListener('click', function() {
             if (currentPage > 1) {
@@ -470,65 +526,63 @@
         });
 
         // ================================================================
-        // Cloudinary Upload (Fixed for Video)
+        // Nnepie UPLOAD
         // ================================================================
-async function uploadToCloudinary(file) {
-    var formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', UPLOAD_PRESET);
+        async function uploadToCloudinary(file) {
+            var formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', UPLOAD_PRESET);
 
-    var endpoint = 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/upload';
-    var resourceType = 'image';
+            var endpoint = 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/upload';
+            var resourceType = 'image';
 
-    if (file.type.startsWith('video/')) {
-        resourceType = 'video';
-        endpoint = 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/video/upload';
-        formData.append('resource_type', 'video');
-    }
+            if (file.type.startsWith('video/')) {
+                resourceType = 'video';
+                endpoint = 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/video/upload';
+                formData.append('resource_type', 'video');
+            }
 
-    var response = await fetch(endpoint, {
-        method: 'POST',
-        body: formData,
-    });
+            var response = await fetch(endpoint, {
+                method: 'POST',
+                body: formData,
+            });
 
-    if (!response.ok) {
-        var errorText = await response.text();
-        throw new Error('Upload failed (' + response.status + '): ' + errorText);
-    }
+            if (!response.ok) {
+                var errorText = await response.text();
+                throw new Error('Upload failed (' + response.status + '): ' + errorText);
+            }
 
-    var result = await response.json();
+            var result = await response.json();
 
-    // ==========  =========
-    var pathMatch = result.url.match(/\/[a-z]+\/upload\/.+$/);
-    var path;
-    if (pathMatch) {
-        path = pathMatch[0];
-        //  upload/  q_auto,f_auto/
-        path = path.replace(/\/[a-z]+\/upload\//, function(match) {
-            return match + 'q_auto,f_auto/';
-        });
-    } else {
-        var urlObj = new URL(result.url);
-        path = urlObj.pathname;
-        path = path.replace(/\/[a-z]+\/upload\//, function(match) {
-            return match + 'q_auto,f_auto/';
-        });
-    }
-    // ========== end ==========
+            // Build proxy URL with q_auto,f_auto
+            var pathMatch = result.url.match(/\/[a-z]+\/upload\/.+$/);
+            var path;
+            if (pathMatch) {
+                path = pathMatch[0];
+                path = path.replace(/\/[a-z]+\/upload\//, function(match) {
+                    return match + 'q_auto,f_auto/';
+                });
+            } else {
+                var urlObj = new URL(result.url);
+                path = urlObj.pathname;
+                path = path.replace(/\/[a-z]+\/upload\//, function(match) {
+                    return match + 'q_auto,f_auto/';
+                });
+            }
+            var proxyUrl = PROXY_DOMAIN + path;
 
-    var proxyUrl = PROXY_DOMAIN + path;
+            return {
+                publicId: result.public_id,
+                url: proxyUrl,
+                originalName: file.name,
+                size: file.size,
+                uploadTime: new Date().toISOString(),
+                resourceType: resourceType,
+            };
+        }
 
-    return {
-        publicId: result.public_id,
-        url: proxyUrl,
-        originalName: file.name,
-        size: file.size,
-        uploadTime: new Date().toISOString(),
-        resourceType: resourceType,
-    };
-}
         // ================================================================
-        // File Upload Handler (with progress UI)
+        // FILE UPLOAD HANDLER
         // ================================================================
         async function handleUploadFiles(files) {
             var validFiles = [];
@@ -541,7 +595,7 @@ async function uploadToCloudinary(file) {
                     continue;
                 }
                 if (f.size > 100 * 1024 * 1024) {
-                    showToast('"' + f.name + '" exceeds 100MB (Cloudinary free limit), skipped', 'error');
+                    showToast('"' + f.name + '" exceeds 92MB (Nnepie free limit), skipped', 'error');
                     continue;
                 }
                 validFiles.push(f);
@@ -549,7 +603,6 @@ async function uploadToCloudinary(file) {
 
             if (validFiles.length === 0) return;
 
-            // Show uploading overlay
             showUploading(validFiles.length);
             var uploaded = 0;
             var newItems = [];
@@ -560,16 +613,13 @@ async function uploadToCloudinary(file) {
                     var result = await uploadToCloudinary(file);
                     newItems.push(result);
                     uploaded++;
-                    // Update progress
                     updateUploadProgress(uploaded, validFiles.length);
                 } catch (err) {
                     showToast('Upload "' + file.name + '" failed: ' + err.message, 'error');
-                    // Still update progress even on fail
                     updateUploadProgress(uploaded, validFiles.length);
                 }
             }
 
-            // Hide overlay
             hideUploading();
 
             if (uploaded === 0) {
@@ -586,12 +636,11 @@ async function uploadToCloudinary(file) {
         }
 
         // ================================================================
-        // Drag & Drop / Click Upload
+        // DRAG & DROP / CLICK UPLOAD
         // ================================================================
         var fileInput = document.getElementById('fileInput');
 
         uploadZone.addEventListener('click', function(e) {
-            // Prevent click on overlay from triggering twice
             if (e.target.closest('.uploading-overlay')) return;
             fileInput.click();
         });
@@ -621,11 +670,11 @@ async function uploadToCloudinary(file) {
         });
 
         // ================================================================
-        // Initial Load
+        // INITIAL LOAD
         // ================================================================
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
         loadMedia();
     </script>
-    <br>
     <script src="https://www.nnepie.com/js/data.js"></script>
 </body>
 </html>
