@@ -257,7 +257,9 @@
                 return;
             }
 
-            var urls = pageItems.map(function(item) { return item.url; });
+            var urls = pageItems.map(function(item) { 
+    return getDisplayName(item.originalName) + ': ' + item.url; 
+});
             var text = urls.join('\n');
 
             if (navigator.clipboard && navigator.clipboard.writeText) {
