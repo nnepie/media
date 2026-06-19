@@ -1,766 +1,514 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Image &amp; Video Sharing Library - Free Online Media Gallery | NNEPIE.COM</title>
-  <meta name="description" content="Upload, manage, and share images and MP4 videos with our free online media library. Supports JPG, PNG, GIF, WebP, and MP4 with Cloudinary storage." />
-  <meta name="keywords" content="image sharing, video sharing, media library, photo gallery, video gallery, upload images, upload videos, cloudinary, free media hosting, NNEPIE" />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://img.nnepie.com/" />
-  <meta property="og:title" content="Image &amp; Video Sharing Library - Free Online Media Gallery" />
-  <meta property="og:description" content="Upload, manage, and share images and MP4 videos with our free online media library. Supports JPG, PNG, GIF, WebP, and MP4 with Cloudinary storage." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://img.nnepie.com/" />
-  <meta property="og:site_name" content="NNEPIE.COM Media Library" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Image &amp; Video Sharing Library - Free Online Media Gallery" />
-  <meta name="twitter:description" content="Upload, manage, and share images and MP4 videos with our free online media library. Supports JPG, PNG, GIF, WebP, and MP4 with Cloudinary storage." />
-
-  <!-- ===== JSON-LD Structured Data ===== -->
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Image & Video Sharing Library",
-      "description": "A free online media library for uploading, managing, and sharing images and MP4 videos with Cloudinary storage.",
-      "url": "https://media.nnepie.com/",
-      "applicationCategory": "Multimedia",
-      "browserRequirements": "Requires JavaScript",
-      "operatingSystem": "All",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      }
-    }
-  </script>
-
-  <style>
-    /* ===== Global Reset ===== */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-      background: #f5f7fb;
-      color: #1e293b;
-      padding: 24px;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    h1 {
-      font-size: 28px;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    h1 small {
-      font-size: 16px;
-      font-weight: 400;
-      color: #64748b;
-    }
-
-    /* ===== Upload Area ===== */
-    .upload-area {
-      background: #fff;
-      border: 2px dashed #cbd5e1;
-      border-radius: 16px;
-      padding: 40px 20px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin-bottom: 30px;
-    }
-
-    .upload-area:hover {
-      border-color: #3b82f6;
-      background: #f8fafc;
-    }
-
-    .upload-area.dragover {
-      border-color: #3b82f6;
-      background: #eff6ff;
-      transform: scale(1.01);
-    }
-
-    .upload-area .icon {
-      font-size: 48px;
-      display: block;
-      margin-bottom: 8px;
-    }
-
-    .upload-area h3 {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-
-    .upload-area p {
-      color: #64748b;
-      font-size: 14px;
-    }
-
-    .upload-area input[type="file"] {
-      display: none;
-    }
-
-    /* ===== Toolbar ===== */
-    .toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .toolbar .info {
-      font-size: 15px;
-      color: #475569;
-    }
-
-    .toolbar .info strong {
-      color: #0f172a;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 18px;
-      border: none;
-      border-radius: 30px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      background: #e2e8f0;
-      color: #1e293b;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    }
-
-    .btn-danger {
-      background: #fee2e2;
-      color: #b91c1c;
-    }
-
-    .btn-danger:hover {
-      background: #fecaca;
-    }
-
-    .btn-sm {
-      padding: 4px 12px;
-      font-size: 12px;
-    }
-
-    /* ===== Gallery Grid ===== */
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
-      background: #fff;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-
-    .card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.10);
-    }
-
-    .card .media-wrapper {
-      width: 100%;
-      padding-top: 100%;
-      position: relative;
-      background: #f1f5f9;
-      overflow: hidden;
-    }
-
-    .card .media-wrapper img,
-    .card .media-wrapper video {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .card .info {
-      padding: 12px 14px;
-      font-size: 13px;
-    }
-
-    .card .info .name {
-      font-weight: 500;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .card .info .meta {
-      color: #64748b;
-      font-size: 12px;
-      margin-top: 4px;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .card .actions {
-      display: flex;
-      justify-content: flex-end;
-      padding: 4px 14px 12px;
-      gap: 6px;
-    }
-
-    .empty {
-      grid-column: 1 / -1;
-      text-align: center;
-      padding: 60px 20px;
-      color: #94a3b8;
-    }
-
-    .empty .big {
-      font-size: 64px;
-      display: block;
-      margin-bottom: 12px;
-    }
-
-    /* ===== Modal ===== */
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(6px);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      padding: 30px;
-    }
-
-    .modal.active {
-      display: flex;
-    }
-
-    .modal-content {
-      max-width: 90vw;
-      max-height: 90vh;
-      background: #fff;
-      border-radius: 16px;
-      overflow: hidden;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .modal-content img,
-    .modal-content video {
-      display: block;
-      max-width: 100%;
-      max-height: 85vh;
-      margin: 0 auto;
-    }
-
-    .modal-content video {
-      width: 100%;
-      height: auto;
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 12px;
-      right: 16px;
-      background: rgba(0, 0, 0, 0.5);
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 24px;
-      cursor: pointer;
-      transition: all 0.2s;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      line-height: 1;
-    }
-
-    .modal-close:hover {
-      background: rgba(0, 0, 0, 0.8);
-      transform: rotate(90deg);
-    }
-
-    .modal-info {
-      padding: 14px 20px;
-      background: #f8fafc;
-      font-size: 14px;
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    /* ===== Toast Notification ===== */
-    .toast-container {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .toast {
-      padding: 12px 20px;
-      border-radius: 10px;
-      background: #0f172a;
-      color: #fff;
-      font-size: 14px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.20);
-      animation: slideIn 0.3s ease;
-    }
-
-    .toast.success {
-      background: #166534;
-    }
-
-    .toast.error {
-      background: #991b1b;
-    }
-
-    @keyframes slideIn {
-      from {
-        transform: translateX(60px);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-
-    /* ===== Responsive ===== */
-    @media (max-width: 640px) {
-      body {
-        padding: 12px;
-      }
-      .gallery {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 14px;
-      }
-      .upload-area {
-        padding: 28px 16px;
-      }
-      .upload-area .icon {
-        font-size: 36px;
-      }
-      .modal-content {
-        max-width: 98vw;
-        max-height: 80vh;
-      }
-    }
-
-    @media (max-width: 400px) {
-      .gallery {
-        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-        gap: 10px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image &amp; Video Sharing Library - Free Online Media Gallery | NNEPIE.COM</title>
+    <meta name="description" content="Upload, manage, and share images and MP4 videos with our free online media library. Supports JPG, PNG, GIF, WebP, and MP4 with Cloudinary storage." />
+    <meta name="keywords" content="image sharing, video sharing, media library, photo gallery, video gallery, upload images, upload videos, cloudinary, free media hosting, NNEPIE" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://img.nnepie.com/" />
+    <meta property="og:title" content="Image &amp; Video Sharing Library - Free Online Media Gallery" />
+    <meta property="og:description" content="Upload, manage, and share images and MP4 videos with our free online media library. Supports JPG, PNG, GIF, WebP, and MP4 with Cloudinary storage." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://img.nnepie.com/" />
+    <meta property="og:site_name" content="NNEPIE.COM Media Library" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Image &amp; Video Sharing Library - Free Online Media Gallery" />
+    <meta name="twitter:description" content="Upload, manage, and share images and MP4 videos with our free online media library. Supports JPG, PNG, GIF, WebP, and MP4 with Cloudinary storage." />
+    <link rel="stylesheet" href="/media.css">
+    <link rel="shortcut icon" href="https://www.nnepie.com/favicon.ico" />
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "Image & Video Sharing Library",
+            "description": "A free online media library for uploading, managing, and sharing images and MP4 videos with Cloudinary storage.",
+            "url": "https://media.nnepie.com/",
+            "applicationCategory": "Multimedia",
+            "browserRequirements": "Requires JavaScript",
+            "operatingSystem": "All",
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+            }
+        }
+    </script>
 </head>
 <body>
-  <div class="container">
-    <h1>📸 Image &amp; Video Sharing Library <small>· NNEPIE.COM Media Library</small></h1>
+    <div class="container">
 
-    <!-- Upload Area -->
-    <div class="upload-area" id="uploadZone">
-      <span class="icon">🖼️</span>
-      <h3>Click or drag to upload images / MP4 videos</h3>
-      <p>Supports JPG / PNG / GIF / WebP / MP4, max 100MB per file</p>
-      <input type="file" id="fileInput" accept="image/*,video/mp4" multiple />
+        <header class="site-header">
+            <img class="site-logo"
+            src="https://retro.ws-expo.com/img/nnepie-logo.png"
+            alt="NnePie Logo"
+            loading="lazy" />
+            <h1 class="site-title">
+                📸 Image &amp; Video Sharing Library
+                <small>· <a href="https://www.nnepie.com" target="_blank">NNEPIE.COM</a> Media Library</small>
+            </h1>
+        </header>
+
+        <div class="upload-area" id="uploadZone">
+            <span class="icon">🖼️</span>
+            <h3>Click or drag to upload images / MP4 videos</h3>
+            <p>Supports JPG / PNG / GIF / WebP / MP4, max 100MB per file</p>
+            <input type="file" id="fileInput" accept="image/*,video/mp4" multiple />
+        </div>
+
+        <div class="toolbar">
+            <div class="info">📂 Total <strong id="countLabel">0</strong> files</div>
+            <button class="btn btn-danger" id="clearAllBtn">🗑️ Clear All</button>
+        </div>
+
+        <div class="gallery" id="gallery"></div>
+
+        <div class="pagination" id="pagination">
+            <button class="btn btn-sm btn-primary" id="prevPage" disabled>Previous</button>
+            <span class="page-info" id="pageInfo">Page 1 of 1</span>
+            <button class="btn btn-sm btn-primary" id="nextPage" disabled>Next</button>
+        </div>
+
+
+        <footer class="footer">
+            <div class="copyright">
+                &copy; <span id="currentYear">2026</span>
+                <a href="https://www.nnepie.com" target="_blank">Nigeria International New Energy and Power Industry Expo</a>.
+                All rights reserved.
+            </div>
+            <div class="footer-links">
+                <a href="https://www.nnepie.com/privacy-policy/" target="_blank">Privacy Policy</a>
+                <span class="link-divider">·</span>
+                <a href="https://www.nnepie.com/terms-of-service/" target="_blank">Terms of Service</a>
+                <span class="link-divider">·</span>
+                <a href="https://www.nnepie.com/about/" target="_blank">About NnePie</a>
+                <span class="link-divider">·</span>
+                <a href="https://www.nnepie.com/faq/" target="_blank">FAQ</a>
+            </div>
+        </footer>
+
     </div>
 
-    <!-- Toolbar -->
-    <div class="toolbar">
-      <div class="info">📂 Total <strong id="countLabel">0</strong> files</div>
-      <button class="btn btn-danger" id="clearAllBtn">🗑️ Clear All</button>
+    <!-- ===== Modal ===== -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">✕</button>
+            <div class="modal-media" id="modalMediaContainer"></div>
+            <div class="modal-info">
+                <span id="modalName">File Name</span>
+                <span id="modalMeta">Size · Time</span>
+            </div>
+        </div>
     </div>
 
-    <!-- Gallery -->
-    <div class="gallery" id="gallery"></div>
-  </div>
+    <div class="toast-container" id="toastContainer"></div>
 
-  <!-- Modal -->
-  <div class="modal" id="modal">
-    <div class="modal-content">
-      <button class="modal-close" id="modalClose">✕</button>
-      <div id="modalMediaContainer" style="display:flex;justify-content:center;align-items:center;background:#000;width:100%;">
-        <!-- dynamic img or video -->
-      </div>
-      <div class="modal-info">
-        <span id="modalName">File Name</span>
-        <span id="modalMeta">Size · Time</span>
-      </div>
-    </div>
-  </div>
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        const CLOUD_NAME = 'do4vo05jd';
+        const UPLOAD_PRESET = 'my_unsigned_preset';
+        const PROXY_DOMAIN = 'https://media.nnepie.com';
+        const STORAGE_KEY = 'cloudinary_media_list';
+        const PAGE_SIZE = 50;
 
-  <!-- Toast Container -->
-  <div class="toast-container" id="toastContainer"></div>
+        let currentPage = 1;
 
-  <script>
-    // ================================================================
-    //  Configuration
-    // ================================================================
-    const CLOUD_NAME = 'do4vo05jd';
-    const UPLOAD_PRESET = 'my_unsigned_preset';
-    const PROXY_DOMAIN = 'https://media.nnepie.com';
-
-    // ================================================================
-    //  Local Storage
-    // ================================================================
-    const STORAGE_KEY = 'cloudinary_media_list';
-
-    function getLocalMedia() {
-      try {
-        const data = localStorage.getItem(STORAGE_KEY);
-        return data ? JSON.parse(data) : [];
-      } catch {
-        return [];
-      }
-    }
-
-    function saveLocalMedia(items) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-    }
-
-    // ================================================================
-    //  Upload to Cloudinary (using regex to extract path)
-    // ================================================================
-    async function uploadToCloudinary(file) {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('upload_preset', UPLOAD_PRESET);
-
-      let endpoint = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`;
-      if (file.type.startsWith('video/')) {
-        endpoint = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`;
-      }
-
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Upload failed (${response.status}): ${errorText}`);
-      }
-
-      const result = await response.json();
-
-      // Debug: print original URL for inspection
-      console.log('Original Cloudinary URL:', result.url);
-
-      // ✅ Use regex to extract the path portion
-      // Match format: https://res.cloudinary.com/do4vo05jd/image/upload/xxx
-      // Extract: /image/upload/xxx
-      const pathMatch = result.url.match(/\/[a-z]+\/upload\/.+$/);
-      let path;
-      if (pathMatch) {
-        path = pathMatch[0];
-      } else {
-        // Fallback to URL object if regex fails
-        const urlObj = new URL(result.url);
-        path = urlObj.pathname;
-      }
-
-      const proxyUrl = `${PROXY_DOMAIN}${path}`;
-
-      // Debug: print generated proxy URL
-      console.log('Generated proxy URL:', proxyUrl);
-
-      return {
-        publicId: result.public_id,
-        url: proxyUrl,
-        originalName: file.name,
-        size: file.size,
-        uploadTime: new Date().toISOString(),
-        resourceType: result.resource_type || (file.type.startsWith('video/') ? 'video' : 'image'),
-      };
-    }
-
-    // ================================================================
-    //  Generate Thumbnail URL (video first frame)
-    // ================================================================
-    function getThumbnailUrl(item) {
-      if (item.resourceType === 'image') {
-        return item.url;
-      } else {
-        // Video first-frame thumbnail
-        return `${PROXY_DOMAIN}/video/upload/so_0,f_jpg/${item.publicId}`;
-      }
-    }
-
-    // ================================================================
-    //  Render Gallery
-    // ================================================================
-    const gallery = document.getElementById('gallery');
-    const countLabel = document.getElementById('countLabel');
-
-    function render(items) {
-      if (!items || items.length === 0) {
-        gallery.innerHTML = `
-          <div class="empty">
-            <span class="big">🖼️</span>
-            No files yet, upload some!
-          </div>
-        `;
-        countLabel.textContent = '0';
-        return;
-      }
-
-      const sorted = [...items].sort((a, b) => new Date(b.uploadTime) - new Date(a.uploadTime));
-
-      let html = '';
-      for (const item of sorted) {
-        const thumbUrl = getThumbnailUrl(item);
-        html += `
-          <div class="card" data-id="${item.publicId}">
-            <div class="media-wrapper" onclick="previewMedia('${item.publicId}')">
-              <img src="${thumbUrl}" alt="${item.originalName}" loading="lazy" />
-            </div>
-            <div class="info">
-              <div class="name" title="${item.originalName}">${item.originalName}</div>
-              <div class="meta">
-                <span>${formatSize(item.size)}</span>
-                <span>${formatTime(item.uploadTime)}</span>
-              </div>
-            </div>
-            <div class="actions">
-              <button class="btn btn-sm btn-danger" onclick="deleteHandler('${item.publicId}')">Delete</button>
-            </div>
-          </div>
-        `;
-      }
-      gallery.innerHTML = html;
-      countLabel.textContent = items.length;
-    }
-
-    function loadMedia() {
-      const items = getLocalMedia();
-      render(items);
-    }
-
-    // ================================================================
-    //  Delete (remove from local list only)
-    // ================================================================
-    window.deleteHandler = function(publicId) {
-      if (!confirm('Remove this file from the list? (The file in the cloud will not be deleted)')) return;
-      let items = getLocalMedia();
-      items = items.filter(item => item.publicId !== publicId);
-      saveLocalMedia(items);
-      render(items);
-      showToast('Removed from list', 'info');
-    };
-
-    document.getElementById('clearAllBtn').addEventListener('click', () => {
-      const items = getLocalMedia();
-      if (items.length === 0) {
-        showToast('No files to clear', 'info');
-        return;
-      }
-      if (!confirm(`Are you sure you want to remove all ${items.length} files from the list?`)) return;
-      saveLocalMedia([]);
-      render([]);
-      showToast('List cleared', 'info');
-    });
-
-    // ================================================================
-    //  Upload Handler
-    // ================================================================
-    const uploadZone = document.getElementById('uploadZone');
-    const fileInput = document.getElementById('fileInput');
-
-    uploadZone.addEventListener('click', () => fileInput.click());
-
-    fileInput.addEventListener('change', async (e) => {
-      const files = e.target.files;
-      if (files.length === 0) return;
-      await handleUploadFiles(files);
-      fileInput.value = '';
-    });
-
-    uploadZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      uploadZone.classList.add('dragover');
-    });
-
-    uploadZone.addEventListener('dragleave', () => {
-      uploadZone.classList.remove('dragover');
-    });
-
-    uploadZone.addEventListener('drop', async (e) => {
-      e.preventDefault();
-      uploadZone.classList.remove('dragover');
-      const files = e.dataTransfer.files;
-      if (files.length === 0) return;
-      await handleUploadFiles(files);
-    });
-
-    async function handleUploadFiles(files) {
-      const validFiles = [];
-      for (const f of files) {
-        const isImage = f.type.startsWith('image/');
-        const isVideo = f.type === 'video/mp4';
-        if (!isImage && !isVideo) {
-          showToast(`"${f.name}" is not an image or MP4 video, skipped`, 'error');
-          continue;
+        function getLocalMedia() {
+            try {
+                const data = localStorage.getItem(STORAGE_KEY);
+                return data ? JSON.parse(data) : [];
+            } catch {
+                return [];
+            }
         }
-        if (f.size > 100 * 1024 * 1024) {
-          showToast(`"${f.name}" exceeds 100MB (Cloudinary free limit), skipped`, 'error');
-          continue;
+
+        function saveLocalMedia(items) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
         }
-        validFiles.push(f);
-      }
 
-      if (validFiles.length === 0) return;
-
-      let uploaded = 0;
-      const newItems = [];
-      for (const file of validFiles) {
-        try {
-          const result = await uploadToCloudinary(file);
-          newItems.push(result);
-          uploaded++;
-        } catch (err) {
-          showToast(`Upload "${file.name}" failed: ${err.message}`, 'error');
+        function getDisplayName(filename) {
+            const idx = filename.lastIndexOf('.');
+            return idx > 0 ? filename.substring(0, idx) : filename;
         }
-      }
 
-      if (uploaded === 0) {
-        showToast('No files were successfully uploaded', 'error');
-        return;
-      }
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+            return (bytes / (1024 * 1024 * 1024)).toFixed(1) + ' GB';
+        }
 
-      const existing = getLocalMedia();
-      const updated = [...existing, ...newItems];
-      saveLocalMedia(updated);
-      render(updated);
-      showToast(`✅ Successfully uploaded ${uploaded} files`, 'success');
-    }
+        function formatTime(iso) {
+            const d = new Date(iso);
+            return d.toLocaleString('en-US', { hour12: false });
+        }
 
-    // ================================================================
-    //  Preview (Modal)
-    // ================================================================
-    const modal = document.getElementById('modal');
-    const modalMediaContainer = document.getElementById('modalMediaContainer');
-    const modalName = document.getElementById('modalName');
-    const modalMeta = document.getElementById('modalMeta');
+        function showToast(msg, type) {
+            type = type || 'info';
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast ' + type;
+            toast.textContent = msg;
+            container.appendChild(toast);
+            setTimeout(function() {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(40px)';
+                toast.style.transition = 'all 0.3s';
+                setTimeout(function() { toast.remove(); }, 300);
+            }, 2800);
+        }
 
-    window.previewMedia = function(publicId) {
-      const items = getLocalMedia();
-      const item = items.find(i => i.publicId === publicId);
-      if (!item) {
-        showToast('File not found', 'error');
-        return;
-      }
+        function copyUrl(url) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(url).then(function() {
+                    showToast('URL copied!', 'success');
+                }).catch(function() {
+                    fallbackCopy(url);
+                });
+            } else {
+                fallbackCopy(url);
+            }
+        }
 
-      modalMediaContainer.innerHTML = '';
+        function fallbackCopy(text) {
+            const input = document.createElement('input');
+            input.value = text;
+            input.style.position = 'fixed';
+            input.style.opacity = '0';
+            document.body.appendChild(input);
+            input.select();
+            try {
+                document.execCommand('copy');
+                showToast('URL copied!', 'success');
+            } catch (e) {
+                showToast('Failed to copy', 'error');
+            }
+            document.body.removeChild(input);
+        }
 
-      if (item.resourceType === 'image') {
-        const img = document.createElement('img');
-        img.src = item.url;
-        img.alt = item.originalName;
-        modalMediaContainer.appendChild(img);
-      } else {
-        const video = document.createElement('video');
-        video.src = item.url;
-        video.controls = true;
-        video.autoplay = true;
-        video.style.maxWidth = '100%';
-        video.style.maxHeight = '85vh';
-        modalMediaContainer.appendChild(video);
-      }
+        function getThumbnailUrl(item) {
+            if (item.resourceType === 'image') {
+                return item.url;
+            } else {
+                return PROXY_DOMAIN + '/video/upload/so_0,f_jpg/' + item.publicId;
+            }
+        }
 
-      modalName.textContent = item.originalName;
-      modalMeta.textContent = `${formatSize(item.size)} · ${formatTime(item.uploadTime)}`;
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    };
+        function render() {
+            const allItems = getLocalMedia();
+            const total = allItems.length;
+            const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-    document.getElementById('modalClose').addEventListener('click', closeModal);
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeModal();
-    });
+            if (currentPage > totalPages) {
+                currentPage = totalPages;
+            }
+            if (currentPage < 1) {
+                currentPage = 1;
+            }
 
-    function closeModal() {
-      modal.classList.remove('active');
-      document.body.style.overflow = '';
-      setTimeout(() => {
-        modalMediaContainer.innerHTML = '';
-      }, 300);
-    }
+            const start = (currentPage - 1) * PAGE_SIZE;
+            const end = Math.min(start + PAGE_SIZE, total);
+            const pageItems = allItems.slice(start, end);
 
-    // ================================================================
-    //  Utility Functions
-    // ================================================================
-    function formatSize(bytes) {
-      if (bytes < 1024) return bytes + ' B';
-      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-      if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-      return (bytes / (1024 * 1024 * 1024)).toFixed(1) + ' GB';
-    }
+            const gallery = document.getElementById('gallery');
+            const countLabel = document.getElementById('countLabel');
+            const pageInfo = document.getElementById('pageInfo');
+            const prevBtn = document.getElementById('prevPage');
+            const nextBtn = document.getElementById('nextPage');
 
-    function formatTime(iso) {
-      const d = new Date(iso);
-      return d.toLocaleString('en-US', { hour12: false });
-    }
+            countLabel.textContent = total;
 
-    function showToast(msg, type = 'info') {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      toast.textContent = msg;
-      container.appendChild(toast);
-      setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(40px)';
-        toast.style.transition = 'all 0.3s';
-        setTimeout(() => toast.remove(), 300);
-      }, 2800);
-    }
+            if (total === 0) {
+                gallery.innerHTML =
+                '<div class="empty"><span class="big">🖼️</span>No files yet, upload some!</div>';
+                pageInfo.textContent = 'Page 0 of 0';
+                prevBtn.disabled = true;
+                nextBtn.disabled = true;
+                return;
+            }
 
-    // ================================================================
-    //  Init
-    // ================================================================
-    loadMedia();
-    console.log('📸 Page loaded, proxy domain:', PROXY_DOMAIN);
-  </script>
+            const sorted = [...pageItems].sort(function(a, b) {
+                return new Date(b.uploadTime) - new Date(a.uploadTime);
+            });
+
+            let html = '';
+            for (var i = 0; i < sorted.length; i++) {
+                var item = sorted[i];
+                var thumbUrl = getThumbnailUrl(item);
+                var displayName = getDisplayName(item.originalName);
+                html += '<div class="card" data-id="' + item.publicId + '">';
+                html += '<div class="media-wrapper" onclick="copyMedia(\'' + item.publicId + '\')">';
+                html += '<img src="' + thumbUrl + '" alt="' + displayName + '" loading="lazy" />';
+                html += '</div>';
+                html += '<div class="info">';
+                html += '<div class="name" title="' + displayName + '" onclick="previewMedia(\'' + item.publicId +
+                    '\')">' + displayName + '</div>';
+                html += '<div class="meta">';
+                html += '<span>' + formatSize(item.size) + '</span>';
+                html += '<span>' + formatTime(item.uploadTime) + '</span>';
+                html += '</div>';
+                html += '</div>';
+                html += '<div class="actions">';
+                html += '<button class="btn btn-sm btn-danger" onclick="deleteHandler(\'' + item.publicId +
+                    '\')">Delete</button>';
+                html += '</div>';
+                html += '</div>';
+            }
+
+            gallery.innerHTML = html;
+
+            pageInfo.textContent = 'Page ' + currentPage + ' of ' + totalPages;
+            prevBtn.disabled = (currentPage <= 1);
+            nextBtn.disabled = (currentPage >= totalPages);
+        }
+
+        function loadMedia() {
+            currentPage = 1;
+            render();
+        }
+
+        window.copyMedia = function(publicId) {
+            const items = getLocalMedia();
+            var item = null;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].publicId === publicId) {
+                    item = items[i];
+                    break;
+                }
+            }
+            if (!item) {
+                showToast('File not found', 'error');
+                return;
+            }
+            copyUrl(item.url);
+        };
+
+        window.previewMedia = function(publicId) {
+            const items = getLocalMedia();
+            var item = null;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].publicId === publicId) {
+                    item = items[i];
+                    break;
+                }
+            }
+            if (!item) {
+                showToast('File not found', 'error');
+                return;
+            }
+
+            var container = document.getElementById('modalMediaContainer');
+            container.innerHTML = '';
+
+            if (item.resourceType === 'image') {
+                var img = document.createElement('img');
+                img.src = item.url;
+                img.alt = getDisplayName(item.originalName);
+                img.onclick = function() { copyUrl(item.url); };
+                container.appendChild(img);
+            } else {
+                var video = document.createElement('video');
+                video.src = item.url;
+                video.controls = true;
+                video.autoplay = true;
+                video.style.maxWidth = '100%';
+                video.style.maxHeight = '85vh';
+                video.onclick = function() { copyUrl(item.url); };
+                container.appendChild(video);
+            }
+
+            document.getElementById('modalName').textContent = getDisplayName(item.originalName);
+            document.getElementById('modalMeta').textContent = formatSize(item.size) + ' · ' + formatTime(item
+            .uploadTime);
+            document.getElementById('modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        };
+
+        window.deleteHandler = function(publicId) {
+            if (!confirm('Remove this file from the list? (The file in the cloud will not be deleted)')) return;
+            var items = getLocalMedia();
+            var newItems = [];
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].publicId !== publicId) {
+                    newItems.push(items[i]);
+                }
+            }
+            saveLocalMedia(newItems);
+            var total = newItems.length;
+            var totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+            if (currentPage > totalPages) {
+                currentPage = totalPages;
+            }
+            render();
+            showToast('Removed from list', 'info');
+        };
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+            document.body.style.overflow = '';
+            setTimeout(function() {
+                document.getElementById('modalMediaContainer').innerHTML = '';
+            }, 300);
+        }
+
+        document.getElementById('modalClose').addEventListener('click', closeModal);
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        document.getElementById('prevPage').addEventListener('click', function() {
+            if (currentPage > 1) {
+                currentPage--;
+                render();
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', function() {
+            var total = getLocalMedia().length;
+            var totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+            if (currentPage < totalPages) {
+                currentPage++;
+                render();
+            }
+        });
+
+        document.getElementById('clearAllBtn').addEventListener('click', function() {
+            var items = getLocalMedia();
+            if (items.length === 0) {
+                showToast('No files to clear', 'info');
+                return;
+            }
+            if (!confirm('Are you sure you want to remove all ' + items.length + ' files from the list?')) return;
+            saveLocalMedia([]);
+            currentPage = 1;
+            render();
+            showToast('List cleared', 'info');
+        });
+
+        async function uploadToCloudinary(file) {
+            var formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', UPLOAD_PRESET);
+
+            var endpoint = 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/upload';
+            if (file.type.startsWith('video/')) {
+                endpoint = 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/video/upload';
+            }
+
+            var response = await fetch(endpoint, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                var errorText = await response.text();
+                throw new Error('Upload failed (' + response.status + '): ' + errorText);
+            }
+
+            var result = await response.json();
+
+            var pathMatch = result.url.match(/\/[a-z]+\/upload\/.+$/);
+            var path;
+            if (pathMatch) {
+                path = pathMatch[0];
+            } else {
+                var urlObj = new URL(result.url);
+                path = urlObj.pathname;
+            }
+
+            var proxyUrl = PROXY_DOMAIN + path;
+
+            return {
+                publicId: result.public_id,
+                url: proxyUrl,
+                originalName: file.name,
+                size: file.size,
+                uploadTime: new Date().toISOString(),
+                resourceType: result.resource_type || (file.type.startsWith('video/') ? 'video' : 'image'),
+            };
+        }
+
+        async function handleUploadFiles(files) {
+            var validFiles = [];
+            for (var i = 0; i < files.length; i++) {
+                var f = files[i];
+                var isImage = f.type.startsWith('image/');
+                var isVideo = f.type === 'video/mp4';
+                if (!isImage && !isVideo) {
+                    showToast('"' + f.name + '" is not an image or MP4 video, skipped', 'error');
+                    continue;
+                }
+                if (f.size > 100 * 1024 * 1024) {
+                    showToast('"' + f.name + '" exceeds 100MB (Cloudinary free limit), skipped', 'error');
+                    continue;
+                }
+                validFiles.push(f);
+            }
+
+            if (validFiles.length === 0) return;
+
+            var uploaded = 0;
+            var newItems = [];
+            for (var j = 0; j < validFiles.length; j++) {
+                var file = validFiles[j];
+                try {
+                    var result = await uploadToCloudinary(file);
+                    newItems.push(result);
+                    uploaded++;
+                } catch (err) {
+                    showToast('Upload "' + file.name + '" failed: ' + err.message, 'error');
+                }
+            }
+
+            if (uploaded === 0) {
+                showToast('No files were successfully uploaded', 'error');
+                return;
+            }
+
+            var existing = getLocalMedia();
+            var updated = existing.concat(newItems);
+            saveLocalMedia(updated);
+            currentPage = 1;
+            render();
+            showToast('✅ Successfully uploaded ' + uploaded + ' files', 'success');
+        }
+
+        var uploadZone = document.getElementById('uploadZone');
+        var fileInput = document.getElementById('fileInput');
+
+        uploadZone.addEventListener('click', function() { fileInput.click(); });
+
+        fileInput.addEventListener('change', async function(e) {
+            var files = e.target.files;
+            if (files.length === 0) return;
+            await handleUploadFiles(files);
+            fileInput.value = '';
+        });
+
+        uploadZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', function() {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', async function(e) {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            var files = e.dataTransfer.files;
+            if (files.length === 0) return;
+            await handleUploadFiles(files);
+        });
+
+        loadMedia();
+    </script>
+    <br>
+    <script src="https://www.nnepie.com/js/data.js"></script>
 </body>
 </html>
