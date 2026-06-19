@@ -35,15 +35,484 @@
             }
         }
     </script>
+    <style>
+        /* ===== Global Reset ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: #f5f7fb;
+            color: #1e293b;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .site-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .site-logo {
+            height: 48px;
+            width: auto;
+        }
+
+        .site-title {
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .site-title small {
+            font-size: 16px;
+            font-weight: 400;
+            color: #64748b;
+        }
+
+        .site-title small a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        .site-title small a:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== Upload Area ===== */
+        .upload-area {
+            background: #fff;
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .upload-area:hover {
+            border-color: #3b82f6;
+            background: #f8fafc;
+        }
+
+        .upload-area.dragover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+            transform: scale(1.01);
+        }
+
+        .upload-area .icon {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .upload-area h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .upload-area p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .upload-area input[type="file"] {
+            display: none;
+        }
+
+        /* ===== Toolbar ===== */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .toolbar .info {
+            font-size: 15px;
+            color: #475569;
+        }
+
+        .toolbar .info strong {
+            color: #0f172a;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            border: none;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .btn-danger:hover {
+            background: #fecaca;
+        }
+
+        .btn-sm {
+            padding: 4px 12px;
+            font-size: 12px;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ===== Gallery Grid ===== */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.10);
+        }
+
+        .card .media-wrapper {
+            width: 100%;
+            padding-top: 100%;
+            position: relative;
+            background: #f1f5f9;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .card .media-wrapper img,
+        .card .media-wrapper video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card .info {
+            padding: 12px 14px;
+            font-size: 13px;
+        }
+
+        .card .info .name {
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+
+        .card .info .name:hover {
+            color: #3b82f6;
+        }
+
+        .card .info .meta {
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .card .actions {
+            display: flex;
+            justify-content: flex-end;
+            padding: 4px 14px 12px;
+            gap: 6px;
+        }
+
+        .empty {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
+        }
+
+        .empty .big {
+            font-size: 64px;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        /* ===== Pagination ===== */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin-top: 24px;
+            padding: 12px 0;
+        }
+
+        .page-info {
+            font-size: 14px;
+            color: #475569;
+        }
+
+        /* ===== Modal ===== */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 30px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-media {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            width: 100%;
+            min-height: 200px;
+        }
+
+        .modal-media img,
+        .modal-media video {
+            display: block;
+            max-width: 100%;
+            max-height: 85vh;
+            margin: 0 auto;
+            cursor: pointer;
+        }
+
+        .modal-media video {
+            width: 100%;
+            height: auto;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: rotate(90deg);
+        }
+
+        .modal-info {
+            padding: 14px 20px;
+            background: #f8fafc;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        /* ===== Toast ===== */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            padding: 12px 20px;
+            border-radius: 10px;
+            background: #0f172a;
+            color: #fff;
+            font-size: 14px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.20);
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success {
+            background: #166534;
+        }
+
+        .toast.error {
+            background: #991b1b;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(60px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* ===== Footer ===== */
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .footer .copyright a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        .footer .copyright a:hover {
+            text-decoration: underline;
+        }
+
+        .footer-links {
+            margin-top: 8px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .footer-links a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        .link-divider {
+            color: #94a3b8;
+        }
+
+        /* ===== Responsive ===== */
+        @media (max-width: 640px) {
+            body {
+                padding: 12px;
+            }
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 14px;
+            }
+            .upload-area {
+                padding: 28px 16px;
+            }
+            .upload-area .icon {
+                font-size: 36px;
+            }
+            .modal-content {
+                max-width: 98vw;
+                max-height: 80vh;
+            }
+            .site-title {
+                font-size: 20px;
+            }
+            .site-logo {
+                height: 36px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+                gap: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
 
         <header class="site-header">
-            <img class="site-logo"
+            <a href="https://www.nnepie.com" target="_blank"><img class="site-logo"
             src="https://retro.ws-expo.com/img/nnepie-logo.png"
             alt="NnePie Logo"
-            loading="lazy" />
+            loading="lazy" /></a>
             <h1 class="site-title">
                 📸 Image &amp; Video Sharing Library
                 <small>· <a href="https://www.nnepie.com" target="_blank">NNEPIE.COM</a> Media Library</small>
@@ -69,7 +538,6 @@
             <span class="page-info" id="pageInfo">Page 1 of 1</span>
             <button class="btn btn-sm btn-primary" id="nextPage" disabled>Next</button>
         </div>
-
 
         <footer class="footer">
             <div class="copyright">
@@ -106,17 +574,24 @@
 
     <script>
         document.getElementById('currentYear').textContent = new Date().getFullYear();
-        const CLOUD_NAME = 'do4vo05jd';
-        const UPLOAD_PRESET = 'my_unsigned_preset';
-        const PROXY_DOMAIN = 'https://media.nnepie.com';
-        const STORAGE_KEY = 'cloudinary_media_list';
-        const PAGE_SIZE = 50;
 
-        let currentPage = 1;
+        // ================================================================
+        // Configuration
+        // ================================================================
+        var CLOUD_NAME = 'do4vo05jd';
+        var UPLOAD_PRESET = 'my_unsigned_preset';
+        var PROXY_DOMAIN = 'https://media.nnepie.com';
+        var STORAGE_KEY = 'cloudinary_media_list';
+        var PAGE_SIZE = 50;
 
+        var currentPage = 1;
+
+        // ================================================================
+        // Local Storage Helpers
+        // ================================================================
         function getLocalMedia() {
             try {
-                const data = localStorage.getItem(STORAGE_KEY);
+                var data = localStorage.getItem(STORAGE_KEY);
                 return data ? JSON.parse(data) : [];
             } catch {
                 return [];
@@ -127,8 +602,11 @@
             localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
         }
 
+        // ================================================================
+        // Utility Functions
+        // ================================================================
         function getDisplayName(filename) {
-            const idx = filename.lastIndexOf('.');
+            var idx = filename.lastIndexOf('.');
             return idx > 0 ? filename.substring(0, idx) : filename;
         }
 
@@ -140,14 +618,14 @@
         }
 
         function formatTime(iso) {
-            const d = new Date(iso);
+            var d = new Date(iso);
             return d.toLocaleString('en-US', { hour12: false });
         }
 
         function showToast(msg, type) {
             type = type || 'info';
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
+            var container = document.getElementById('toastContainer');
+            var toast = document.createElement('div');
             toast.className = 'toast ' + type;
             toast.textContent = msg;
             container.appendChild(toast);
@@ -172,7 +650,7 @@
         }
 
         function fallbackCopy(text) {
-            const input = document.createElement('input');
+            var input = document.createElement('input');
             input.value = text;
             input.style.position = 'fixed';
             input.style.opacity = '0';
@@ -187,18 +665,25 @@
             document.body.removeChild(input);
         }
 
+        // ================================================================
+        // Thumbnail Generation
+        // ================================================================
         function getThumbnailUrl(item) {
             if (item.resourceType === 'image') {
                 return item.url;
             } else {
+                // video thumbnail: first frame at 0 seconds, output as jpg
                 return PROXY_DOMAIN + '/video/upload/so_0,f_jpg/' + item.publicId;
             }
         }
 
+        // ================================================================
+        // Rendering & Pagination
+        // ================================================================
         function render() {
-            const allItems = getLocalMedia();
-            const total = allItems.length;
-            const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+            var allItems = getLocalMedia();
+            var total = allItems.length;
+            var totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
             if (currentPage > totalPages) {
                 currentPage = totalPages;
@@ -207,32 +692,33 @@
                 currentPage = 1;
             }
 
-            const start = (currentPage - 1) * PAGE_SIZE;
-            const end = Math.min(start + PAGE_SIZE, total);
-            const pageItems = allItems.slice(start, end);
+            var start = (currentPage - 1) * PAGE_SIZE;
+            var end = Math.min(start + PAGE_SIZE, total);
+            var pageItems = allItems.slice(start, end);
 
-            const gallery = document.getElementById('gallery');
-            const countLabel = document.getElementById('countLabel');
-            const pageInfo = document.getElementById('pageInfo');
-            const prevBtn = document.getElementById('prevPage');
-            const nextBtn = document.getElementById('nextPage');
+            var gallery = document.getElementById('gallery');
+            var countLabel = document.getElementById('countLabel');
+            var pageInfo = document.getElementById('pageInfo');
+            var prevBtn = document.getElementById('prevPage');
+            var nextBtn = document.getElementById('nextPage');
 
             countLabel.textContent = total;
 
             if (total === 0) {
                 gallery.innerHTML =
-                '<div class="empty"><span class="big">🖼️</span>No files yet, upload some!</div>';
+                    '<div class="empty"><span class="big">🖼️</span>No files yet, upload some!</div>';
                 pageInfo.textContent = 'Page 0 of 0';
                 prevBtn.disabled = true;
                 nextBtn.disabled = true;
                 return;
             }
 
-            const sorted = [...pageItems].sort(function(a, b) {
+            // Sort by newest first (based on uploadTime)
+            var sorted = pageItems.slice().sort(function(a, b) {
                 return new Date(b.uploadTime) - new Date(a.uploadTime);
             });
 
-            let html = '';
+            var html = '';
             for (var i = 0; i < sorted.length; i++) {
                 var item = sorted[i];
                 var thumbUrl = getThumbnailUrl(item);
@@ -268,8 +754,11 @@
             render();
         }
 
+        // ================================================================
+        // Media Actions (Copy, Preview, Delete)
+        // ================================================================
         window.copyMedia = function(publicId) {
-            const items = getLocalMedia();
+            var items = getLocalMedia();
             var item = null;
             for (var i = 0; i < items.length; i++) {
                 if (items[i].publicId === publicId) {
@@ -285,7 +774,7 @@
         };
 
         window.previewMedia = function(publicId) {
-            const items = getLocalMedia();
+            var items = getLocalMedia();
             var item = null;
             for (var i = 0; i < items.length; i++) {
                 if (items[i].publicId === publicId) {
@@ -315,6 +804,10 @@
                 video.style.maxWidth = '100%';
                 video.style.maxHeight = '85vh';
                 video.onclick = function() { copyUrl(item.url); };
+                // fallback if video fails to load
+                video.onerror = function() {
+                    showToast('Failed to load video. The file may be corrupted or the proxy is not working.', 'error');
+                };
                 container.appendChild(video);
             }
 
@@ -360,6 +853,9 @@
             if (e.key === 'Escape') closeModal();
         });
 
+        // ================================================================
+        // Pagination Controls
+        // ================================================================
         document.getElementById('prevPage').addEventListener('click', function() {
             if (currentPage > 1) {
                 currentPage--;
@@ -389,14 +885,22 @@
             showToast('List cleared', 'info');
         });
 
+        // ================================================================
+        // Cloudinary Upload (Fixed for Video)
+        // ================================================================
         async function uploadToCloudinary(file) {
             var formData = new FormData();
             formData.append('file', file);
             formData.append('upload_preset', UPLOAD_PRESET);
 
             var endpoint = 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/upload';
+            var resourceType = 'image';
+
             if (file.type.startsWith('video/')) {
+                resourceType = 'video';
                 endpoint = 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/video/upload';
+                // Explicitly tell Cloudinary this is a video
+                formData.append('resource_type', 'video');
             }
 
             var response = await fetch(endpoint, {
@@ -411,6 +915,7 @@
 
             var result = await response.json();
 
+            // Extract path from the returned URL
             var pathMatch = result.url.match(/\/[a-z]+\/upload\/.+$/);
             var path;
             if (pathMatch) {
@@ -428,10 +933,13 @@
                 originalName: file.name,
                 size: file.size,
                 uploadTime: new Date().toISOString(),
-                resourceType: result.resource_type || (file.type.startsWith('video/') ? 'video' : 'image'),
+                resourceType: resourceType, // Use our determined type
             };
         }
 
+        // ================================================================
+        // File Upload Handler
+        // ================================================================
         async function handleUploadFiles(files) {
             var validFiles = [];
             for (var i = 0; i < files.length; i++) {
@@ -477,6 +985,9 @@
             showToast('✅ Successfully uploaded ' + uploaded + ' files', 'success');
         }
 
+        // ================================================================
+        // Drag & Drop / Click Upload
+        // ================================================================
         var uploadZone = document.getElementById('uploadZone');
         var fileInput = document.getElementById('fileInput');
 
@@ -506,6 +1017,9 @@
             await handleUploadFiles(files);
         });
 
+        // ================================================================
+        // Initial Load
+        // ================================================================
         loadMedia();
     </script>
     <br>
