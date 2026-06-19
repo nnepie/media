@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>📸 图片 & 视频共享库</title>
+  <title>📸 Image & Video Share Library</title>
   <style>
-    /* ===== 样式 ===== */
+    /* ===== Styles ===== */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: system-ui; background: #f5f7fb; padding: 24px; }
     .container { max-width: 1200px; margin: 0 auto; }
@@ -117,23 +117,23 @@
 </head>
 <body>
 <div class="container">
-  <h1>📸 图片 & 视频共享库 <small>· Cloudinary</small></h1>
+  <h1>📸 Image & Video Share Library <small>· NNEPIE Media</small></h1>
 
-  <!-- 上传区域 -->
+  <!-- Upload area -->
   <div class="upload-area" id="uploadZone">
     <span class="icon">🖼️</span>
-    <h3>点击或拖拽上传图片 / MP4 视频</h3>
-    <p>支持 JPG / PNG / GIF / WebP / MP4，单文件 ≤ 100MB</p>
+    <h3>Click or drag to upload images / MP4 videos</h3>
+    <p>Supports JPG / PNG / GIF / WebP / MP4, max 100MB per file</p>
     <input type="file" id="fileInput" accept="image/*,video/mp4" multiple />
   </div>
 
-  <!-- 工具栏 -->
+  <!-- Toolbar -->
   <div class="toolbar">
-    <div class="info">📂 共 <strong id="countLabel">0</strong> 个文件</div>
-    <button class="btn btn-danger" id="clearAllBtn">🗑️ 清空全部</button>
+    <div class="info">📂 Total <strong id="countLabel">0</strong> files</div>
+    <button class="btn btn-danger" id="clearAllBtn">🗑️ Clear All</button>
   </div>
 
-  <!-- 列表 -->
+  <!-- Gallery -->
   <div class="gallery" id="gallery"></div>
 </div>
 
@@ -142,11 +142,11 @@
   <div class="modal-content">
     <button class="modal-close" id="modalClose">✕</button>
     <div id="modalMediaContainer" style="display:flex;justify-content:center;align-items:center;background:#000;width:100%;">
-      <!-- 动态插入 img 或 video -->
+      <!-- Dynamic img or video inserted here -->
     </div>
     <div class="modal-info">
-      <span id="modalName">文件名</span>
-      <span id="modalMeta">大小 · 时间</span>
+      <span id="modalName">Filename</span>
+      <span id="modalMeta">Size · Time</span>
     </div>
   </div>
 </div>
@@ -156,13 +156,13 @@
 
 <script>
   // ============================================================
-  // ⚙️ 您的 Cloudinary 配置（已硬编码）
+  // ⚙️ Your config (hardcoded)
   // ============================================================
-  const CLOUD_NAME = 'do4vo05jd';
-  const UPLOAD_PRESET = 'my_unsigned_preset';
+  const CLOUD_NAME = 'do4vo05jd';              // ✅ Your Cloud Name
+  const UPLOAD_PRESET = 'my_unsigned_preset';  // ✅ Your Upload Preset
 
   // ============================================================
-  // 1. 本地存储管理（图片/视频列表）
+  // 1. Local storage management (image/video list)
   // ============================================================
   const STORAGE_KEY = 'cloudinary_media_list';
 
@@ -178,14 +178,13 @@
   }
 
   // ============================================================
-  // 2. 上传到 Cloudinary（支持图片/视频）
+  // 2. Upload (supports images/videos)
   // ============================================================
   async function uploadToCloudinary(file) {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', UPLOAD_PRESET);
 
-    // 根据文件类型显式设置 resource_type，便于 Cloudinary 处理
     let url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`;
     if (file.type.startsWith('video/')) {
       url = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`;
@@ -198,11 +197,10 @@
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`上传失败 (${response.status}): ${errorText}`);
+      throw new Error(`Upload failed (${response.status}): ${errorText}`);
     }
 
     const result = await response.json();
-    // result.resource_type 可能是 'image' 或 'video'
     return {
       publicId: result.public_id,
       url: result.secure_url,
@@ -214,28 +212,26 @@
   }
 
   // ============================================================
-  // 3. 生成缩略图 URL（视频用首帧截图）
+  // 3. Generate thumbnail URL (first frame for video)
   // ============================================================
   function getThumbnailUrl(item) {
     if (item.resourceType === 'image') {
-      return item.url; // 图片直接用原图
+      return item.url;
     } else {
-      // 视频：生成首帧缩略图（第0秒）
-      // 格式：https://res.cloudinary.com/cloud_name/video/upload/so_0,f_jpg/public_id
-      // 注意 publicId 不包含扩展名
+      // Video first frame
       return `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/so_0,f_jpg/${item.publicId}`;
     }
   }
 
   // ============================================================
-  // 4. 渲染
+  // 4. Rendering
   // ============================================================
   const gallery = document.getElementById('gallery');
   const countLabel = document.getElementById('countLabel');
 
   function render(items) {
     if (!items || items.length === 0) {
-      gallery.innerHTML = `<div class="empty"><span class="big">🖼️</span>还没有文件，上传吧！</div>`;
+      gallery.innerHTML = `<div class="empty"><span class="big">🖼️</span>No files yet, upload some!</div>`;
       countLabel.textContent = '0';
       return;
     }
@@ -244,8 +240,6 @@
     let html = '';
     for (const item of sorted) {
       const thumbUrl = getThumbnailUrl(item);
-      const isVideo = item.resourceType === 'video';
-      // 卡片内显示缩略图（图片或视频首帧）
       html += `
         <div class="card" data-id="${item.publicId}">
           <div class="media-wrapper" onclick="previewMedia('${item.publicId}')">
@@ -259,7 +253,7 @@
             </div>
           </div>
           <div class="actions">
-            <button class="btn btn-sm btn-danger" onclick="deleteHandler('${item.publicId}')">删除</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteHandler('${item.publicId}')">Delete</button>
           </div>
         </div>
       `;
@@ -273,30 +267,30 @@
     render(items);
   }
 
-  // 删除（仅本地移除）
+  // Delete (local removal only)
   window.deleteHandler = function(publicId) {
-    if (!confirm('从列表中移除该文件？（云端文件不会被删除）')) return;
+    if (!confirm('Remove this file from the list? (Cloud file will not be deleted)')) return;
     let items = getLocalMedia();
     items = items.filter(item => item.publicId !== publicId);
     saveLocalMedia(items);
     render(items);
-    showToast('已从列表移除', 'info');
+    showToast('Removed from list', 'info');
   };
 
   document.getElementById('clearAllBtn').addEventListener('click', () => {
     const items = getLocalMedia();
     if (items.length === 0) {
-      showToast('还没有文件可清空', 'info');
+      showToast('No files to clear', 'info');
       return;
     }
-    if (!confirm(`确定从列表中移除全部 ${items.length} 个文件吗？`)) return;
+    if (!confirm(`Are you sure you want to remove all ${items.length} files from the list?`)) return;
     saveLocalMedia([]);
     render([]);
-    showToast('已清空列表', 'info');
+    showToast('List cleared', 'info');
   });
 
   // ============================================================
-  // 5. 上传处理
+  // 5. Upload handling
   // ============================================================
   const uploadZone = document.getElementById('uploadZone');
   const fileInput = document.getElementById('fileInput');
@@ -331,11 +325,11 @@
       const isImage = f.type.startsWith('image/');
       const isVideo = f.type === 'video/mp4';
       if (!isImage && !isVideo) {
-        showToast(`"${f.name}" 不是图片或 MP4 视频，已跳过`, 'error');
+        showToast(`"${f.name}" is not an image or MP4 video, skipped`, 'error');
         continue;
       }
       if (f.size > 100 * 1024 * 1024) {
-        showToast(`"${f.name}" 超过 100MB (Cloudinary 免费限制)，已跳过`, 'error');
+        showToast(`"${f.name}" exceeds 100MB (Cloudinary free limit), skipped`, 'error');
         continue;
       }
       validFiles.push(f);
@@ -351,12 +345,12 @@
         newItems.push(result);
         uploaded++;
       } catch (err) {
-        showToast(`上传 "${file.name}" 失败: ${err.message}`, 'error');
+        showToast(`Upload "${file.name}" failed: ${err.message}`, 'error');
       }
     }
 
     if (uploaded === 0) {
-      showToast('没有成功上传任何文件', 'error');
+      showToast('No files uploaded successfully', 'error');
       return;
     }
 
@@ -364,11 +358,11 @@
     const updated = [...existing, ...newItems];
     saveLocalMedia(updated);
     render(updated);
-    showToast(`✅ 成功上传 ${uploaded} 个文件`, 'success');
+    showToast(`✅ Successfully uploaded ${uploaded} files`, 'success');
   }
 
   // ============================================================
-  // 6. 预览（图片或视频）
+  // 6. Preview (image or video)
   // ============================================================
   const modal = document.getElementById('modal');
   const modalMediaContainer = document.getElementById('modalMediaContainer');
@@ -379,11 +373,10 @@
     const items = getLocalMedia();
     const item = items.find(i => i.publicId === publicId);
     if (!item) {
-      showToast('文件不存在', 'error');
+      showToast('File not found', 'error');
       return;
     }
 
-    // 清空容器
     modalMediaContainer.innerHTML = '';
 
     if (item.resourceType === 'image') {
@@ -392,7 +385,6 @@
       img.alt = item.originalName;
       modalMediaContainer.appendChild(img);
     } else {
-      // 视频
       const video = document.createElement('video');
       video.src = item.url;
       video.controls = true;
@@ -415,14 +407,13 @@
   function closeModal() {
     modal.classList.remove('active');
     document.body.style.overflow = '';
-    // 清空容器，释放视频资源
     setTimeout(() => {
       modalMediaContainer.innerHTML = '';
     }, 300);
   }
 
   // ============================================================
-  // 7. 工具函数
+  // 7. Utility functions
   // ============================================================
   function formatSize(bytes) {
     if (bytes < 1024) return bytes + ' B';
@@ -451,10 +442,10 @@
   }
 
   // ============================================================
-  // 8. 启动
+  // 8. Startup
   // ============================================================
   loadMedia();
-  console.log('📸 支持图片 + MP4 视频，Cloud Name:', CLOUD_NAME);
+  console.log('📸 Ready, Cloud Name:', CLOUD_NAME);
 </script>
 </body>
 </html>
