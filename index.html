@@ -472,54 +472,61 @@
         // ================================================================
         // Cloudinary Upload (Fixed for Video)
         // ================================================================
-        async function uploadToCloudinary(file) {
-            var formData = new FormData();
-            formData.append('file', file);
-            formData.append('upload_preset', UPLOAD_PRESET);
+async function uploadToCloudinary(file) {
+    var formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', UPLOAD_PRESET);
 
-            var endpoint = 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/upload';
-            var resourceType = 'image';
+    var endpoint = 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/upload';
+    var resourceType = 'image';
 
-            if (file.type.startsWith('video/')) {
-                resourceType = 'video';
-                endpoint = 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/video/upload';
-                formData.append('resource_type', 'video');
-            }
+    if (file.type.startsWith('video/')) {
+        resourceType = 'video';
+        endpoint = 'https://api.cloudinary.com/v1_1/' + CLOUD_NAME + '/video/upload';
+        formData.append('resource_type', 'video');
+    }
 
-            var response = await fetch(endpoint, {
-                method: 'POST',
-                body: formData,
-            });
+    var response = await fetch(endpoint, {
+        method: 'POST',
+        body: formData,
+    });
 
-            if (!response.ok) {
-                var errorText = await response.text();
-                throw new Error('Upload failed (' + response.status + '): ' + errorText);
-            }
+    if (!response.ok) {
+        var errorText = await response.text();
+        throw new Error('Upload failed (' + response.status + '): ' + errorText);
+    }
 
-            var result = await response.json();
+    var result = await response.json();
 
-            // Extract path from the returned URL
-            var pathMatch = result.url.match(/\/[a-z]+\/upload\/.+$/);
-            var path;
-            if (pathMatch) {
-                path = pathMatch[0];
-            } else {
-                var urlObj = new URL(result.url);
-                path = urlObj.pathname;
-            }
+    // ==========  =========
+    var pathMatch = result.url.match(/\/[a-z]+\/upload\/.+$/);
+    var path;
+    if (pathMatch) {
+        path = pathMatch[0];
+        //  upload/  q_auto,f_auto/
+        path = path.replace(/\/[a-z]+\/upload\//, function(match) {
+            return match + 'q_auto,f_auto/';
+        });
+    } else {
+        var urlObj = new URL(result.url);
+        path = urlObj.pathname;
+        path = path.replace(/\/[a-z]+\/upload\//, function(match) {
+            return match + 'q_auto,f_auto/';
+        });
+    }
+    // ========== end ==========
 
-            var proxyUrl = PROXY_DOMAIN + path;
+    var proxyUrl = PROXY_DOMAIN + path;
 
-            return {
-                publicId: result.public_id,
-                url: proxyUrl,
-                originalName: file.name,
-                size: file.size,
-                uploadTime: new Date().toISOString(),
-                resourceType: resourceType,
-            };
-        }
-
+    return {
+        publicId: result.public_id,
+        url: proxyUrl,
+        originalName: file.name,
+        size: file.size,
+        uploadTime: new Date().toISOString(),
+        resourceType: resourceType,
+    };
+}
         // ================================================================
         // File Upload Handler (with progress UI)
         // ================================================================
